@@ -1,24 +1,25 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientRepository;
-
-import java.util.Optional;
 @Service
-public class ClientService {
-
+public class RegistrationService {
     private final ClientRepository clientRepository;
 
+    private final PasswordEncoder passwordEncoder;
     @Autowired
-    public ClientService(ClientRepository clientRepository) {
+    public RegistrationService(ClientRepository clientRepository, PasswordEncoder passwordEncoder) {
         this.clientRepository = clientRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    @Transactional(readOnly = true)
-    public Optional<Client> findByPhoneNumber(String phoneNumber){
-        return clientRepository.findByPhoneNumber(phoneNumber);
+    @Transactional
+    public void register(Client client){
+        client.setPassword(passwordEncoder.encode(client.getPassword()));
+        clientRepository.save(client);
     }
 }

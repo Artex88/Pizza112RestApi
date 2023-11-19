@@ -16,23 +16,23 @@ import java.util.Date;
 public class JWTUtil {
     @Value("${jwt_secret}")
     private String secret;
-    public String generateToken(int id){
+    public String generateToken(String phoneNumber){
         Date expirationDate = Date.from(ZonedDateTime.now().plusMinutes(60).toInstant());
         return JWT.create()
                 .withSubject("User details")
-                .withClaim("id", id)
+                .withClaim("phoneNumber", phoneNumber)
                 .withIssuedAt(new Date())
                 .withIssuer("spring-app-Pizza112")
                 .withExpiresAt(expirationDate)
                 .sign(Algorithm.HMAC256(secret));
     }
 
-    public int validateTokenAndRetrieveClaim(String token) throws JWTVerificationException {
+    public String validateTokenAndRetrieveClaim(String token) throws JWTVerificationException {
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secret))
                 .withSubject("User details")
                 .withIssuer("spring-app-Pizza112")
                 .build();
         DecodedJWT jwt = verifier.verify(token);
-        return jwt.getClaim("id").asInt();
+        return jwt.getClaim("phoneNumber").asString();
     }
 }
