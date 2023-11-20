@@ -26,6 +26,7 @@ public class ClientValidator implements Validator {
     public void validate(Object target, Errors errors) {
         Client client = (Client) target;
         if (clientService.findByPhoneNumber(client.getPhoneNumber()).isPresent())
-            errors.rejectValue("phoneNumber","400","Пользователь с таким номером телефона уже существует");
+            //errors.rejectValue("phoneNumber","400","Пользователь с таким номером телефона уже существует");
+            throw new ClientAlreadyExistAuthenticationException();
     }
 }
