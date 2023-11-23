@@ -1,11 +1,11 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 
 import java.util.Collection;
+import java.util.Collections;
 
 public record ClientDetail(Client client) implements UserDetails {
 
@@ -15,7 +15,7 @@ public record ClientDetail(Client client) implements UserDetails {
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

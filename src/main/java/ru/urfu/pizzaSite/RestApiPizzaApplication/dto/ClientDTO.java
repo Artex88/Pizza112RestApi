@@ -11,21 +11,6 @@ public class ClientDTO {
     @Size(min = 11, message = "Номер должен содержать 11 цифр")
     private String phoneNumber;
 
-    @Column(name = "password")
-    @NotEmpty(message = "Пароль не должен быть пустым")
-    private String password;
-
-    @Column(name = "name")
-    private String name;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -34,11 +19,4 @@ public class ClientDTO {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }

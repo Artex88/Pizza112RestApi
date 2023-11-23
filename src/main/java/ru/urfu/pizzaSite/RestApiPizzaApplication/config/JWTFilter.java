@@ -7,17 +7,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientDetailService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientService;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @Component
 public class JWTFilter extends OncePerRequestFilter {
@@ -45,7 +43,7 @@ public class JWTFilter extends OncePerRequestFilter {
                         String phoneNumber = jwtUtil.validateTokenAndRetrieveClaim(jwt);
                         UserDetails userDetails = clientDetailService.loadUserByUsername(phoneNumber);
                         UsernamePasswordAuthenticationToken authenticationToken =
-                                new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+                                new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), Collections.emptyList());
                         if (SecurityContextHolder.getContext().getAuthentication() == null) {
                             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                         }

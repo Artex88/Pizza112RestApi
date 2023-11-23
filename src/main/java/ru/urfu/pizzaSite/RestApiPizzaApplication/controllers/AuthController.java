@@ -9,21 +9,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.api.SMSApi;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.AuthenticationDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.security.LongGenerator;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.security.TOTPGenerator;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientInfoService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.RegistrationService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.ClientErrorResponse;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.ClientValidationError;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.ClientValidator;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.ClientAlreadyExistAuthenticationException;
 
-import java.util.List;
+import java.security.InvalidKeyException;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -32,57 +39,116 @@ import java.util.stream.Collectors;
 public class AuthController {
     private final RegistrationService registrationService;
     private final ClientValidator clientValidator;
+
+    private final LongGenerator longGenerator;
     private final JWTUtil jwtUtil;
+
+    private final ClientService clientService;
+
+    private final ClientInfoService clientInfoService;
+    private final SMSApi smsApi;
+
+    private final TOTPGenerator TOTPGenerator;
 
     private final ModelMapper modelMapper;
 
-    private final AuthenticationManager authenticationManager;
+
 
     @Autowired
-    public AuthController(RegistrationService registrationService, ClientValidator clientValidator, JWTUtil jwtUtil, ModelMapper modelMapper, AuthenticationManager authenticationManager) {
+    public AuthController(RegistrationService registrationService, ClientValidator clientValidator, LongGenerator longGenerator, JWTUtil jwtUtil, ClientService clientService, ClientInfoService clientInfoService, SMSApi smsApi, TOTPGenerator TOTPGenerator, ModelMapper modelMapper) {
         this.registrationService = registrationService;
         this.clientValidator = clientValidator;
+        this.longGenerator = longGenerator;
         this.jwtUtil = jwtUtil;
+        this.clientService = clientService;
+        this.clientInfoService = clientInfoService;
+        this.smsApi = smsApi;
+        this.TOTPGenerator = TOTPGenerator;
         this.modelMapper = modelMapper;
-
-        this.authenticationManager = authenticationManager;
     }
-    @PostMapping("/registration")
-    public Map<String, String> performRegistration(@RequestBody @Valid ClientDTO clientDTO, BindingResult bindingResult){
+    @PostMapping("/sms_authentications")
+    public ResponseEntity<ClientResponse> performRegistration(@RequestBody @Valid ClientDTO clientDTO, BindingResult bindingResult) throws InvalidKeyException {
             if (bindingResult.hasErrors()){
                 throw new ClientValidationError(bindingResult);
             }
-            Client client = convertToClient(clientDTO);
-            clientValidator.validate(client, bindingResult);
+            if (clientService.isAuthenticationExist(clientDTO.getPhoneNumber())){
+                // Если существует
 
-            registrationService.register(client);
-            String token = jwtUtil.generateToken(client.getPhoneNumber());
-            return Map.of("jwt-token", token);
+                Client client = clientService.findByPhoneNumber(clientDTO.getPhoneNumber());
+                if (clientService.canMakeRegisterRequest(client)){
+                    String hotpPassword = client.getPassword();
+                    smsApi.sendSMSWithPassword(clientDTO.getPhoneNumber(), hotpPassword);
+                    clientService.startPasswordReplacementCounter(client, LocalDateTime.now(), TOTPGenerator.generatePassword(longGenerator.generateLong()));
+                }
+                else
+                    //TODO МОЖНО ПЕРЕДЕЛАТЬ НА EXCEPTION HANDLER В canMakeRequest КИДАТЬ ИСКЛЮЧЕНИЕ ЕСЛИ FALSE; ДА И ВООБЩЕ ВЕСЬ КОД ВЫШЕ МОЖНО ЗАСУНУТЬ В СЕРВИС В МЕТОД SendMessage или типо того
+                    return new ResponseEntity<>(new ClientResponse("Too many request", System.currentTimeMillis()), HttpStatus.TOO_MANY_REQUESTS);
+                }
+            else {
+                // Eсли нет
+                String hotpPassword = TOTPGenerator.generatePassword(longGenerator.generateLong());
+                registrationService.PreRegisterClient(new Client(clientDTO.getPhoneNumber(), hotpPassword, LocalDateTime.now(),null));
+                smsApi.sendSMSWithPassword(clientDTO.getPhoneNumber(), hotpPassword);
+                clientService.startPasswordReplacementCounter(clientService.findByPhoneNumber(clientDTO.getPhoneNumber()), LocalDateTime.now(), TOTPGenerator.generatePassword(longGenerator.generateLong()));
+            }
+
+            return new ResponseEntity<>(new ClientResponse("Message send", System.currentTimeMillis()), HttpStatus.OK);
     }
-    @PostMapping("/login")
-    public Map<String, String> performLogin(@RequestBody AuthenticationDTO authenticationDTO){
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(authenticationDTO.getPhoneNumber(), authenticationDTO.getPassword());
-        authenticationManager.authenticate(authenticationToken);
-        String token = jwtUtil.generateToken(authenticationDTO.getPhoneNumber());
-        return Map.of("jwt-token", token);
+    @PostMapping("/sms_check")
+    public Map<String, String> performLogin(@RequestBody AuthenticationDTO authenticationDTO) throws InvalidKeyException {
+        // TODO ПОЙМАТЬ ОШИБКУ, ЧТО ПОЛЬЗОВАЬЕЛЬ УЖЕ АВТОРИЗОВАН
+        if (SecurityContextHolder.getContext().getAuthentication().isAuthenticated()){
+            Map.of("message", "пользователь уже авторизован");
+        }
+        Client client = clientService.findByPhoneNumber(authenticationDTO.getPhoneNumber());
+        if (clientService.canMakeLoginRequest(client, TOTPGenerator.generatePassword(longGenerator.generateLong()))) {
+                if (clientInfoService.isClientExist(authenticationDTO.getPhoneNumber())) {
+                    clientService.authenticate(authenticationDTO,client,  TOTPGenerator.generatePassword(longGenerator.generateLong()));
+                } else {
+                    ClientInfo newClientInfo = convertToClient(authenticationDTO);
+                    registrationService.register(newClientInfo, client);
+                    clientService.authenticate(authenticationDTO,client, TOTPGenerator.generatePassword(longGenerator.generateLong()));
+
+                }
+
+                String token = jwtUtil.generateToken(authenticationDTO.getPhoneNumber());
+                return Map.of("jwt-token", token);
+            }
+        return Map.of("message", "много запросов");
+    }
+
+    @PostMapping("/sms_check/resend")
+    public Map<String, String> resendLogin(@RequestBody ClientDTO clientDTO) throws InvalidKeyException{
+        Client client = clientService.findByPhoneNumber(clientDTO.getPhoneNumber());
+        if (clientService.canMakeRegisterRequest(client)) {
+            String hotpPassword = TOTPGenerator.generatePassword(longGenerator.generateLong());
+            clientService.updatePasswordAndAttempts(client, hotpPassword);
+            smsApi.sendSMSWithPassword(clientDTO.getPhoneNumber(), hotpPassword);
+            clientService.startPasswordReplacementCounter(client, LocalDateTime.now(), TOTPGenerator.generatePassword(longGenerator.generateLong()));
+            return Map.of("message", "сообщение отправленно");
+        }
+        else {
+            return Map.of("message", "много запросов");
+        }
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ClientResponse> handleException(ClientAlreadyExistAuthenticationException e){
+        ClientResponse clientResponse = new ClientResponse("Пользователь с таким номером телефона уже существует", System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler
-    private ResponseEntity<ClientErrorResponse> handleException(ClientAlreadyExistAuthenticationException e){
-        ClientErrorResponse clientErrorResponse = new ClientErrorResponse("Пользователь с таким номером телефона уже существует", System.currentTimeMillis());
-        return new ResponseEntity<>(clientErrorResponse, HttpStatus.BAD_REQUEST);
+    private ResponseEntity<ClientResponse> handleException(BadCredentialsException e){
+        ClientResponse clientResponse = new ClientResponse("Неправильный логин или пароль", System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
-    @ExceptionHandler
-    private ResponseEntity<ClientErrorResponse> handleException(BadCredentialsException e){
-        ClientErrorResponse clientErrorResponse = new ClientErrorResponse("Неправильный логин или пароль", System.currentTimeMillis());
-        return new ResponseEntity<>(clientErrorResponse, HttpStatus.BAD_REQUEST);
-    }
-    @ExceptionHandler ResponseEntity<ClientErrorResponse> handleException(ClientValidationError e){
+    @ExceptionHandler ResponseEntity<ClientResponse> handleException(ClientValidationError e){
         String k = e.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("; "));
-        ClientErrorResponse clientErrorResponse = new ClientErrorResponse(k, System.currentTimeMillis());
-        return new ResponseEntity<>(clientErrorResponse, HttpStatus.BAD_REQUEST);
+        ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
-    public Client convertToClient(ClientDTO clientDTO){
-        return this.modelMapper.map(clientDTO, Client.class);
+
+    public ClientInfo convertToClient(AuthenticationDTO authenticationDTO){
+        return this.modelMapper.map(authenticationDTO, ClientInfo.class);
     }
 }
