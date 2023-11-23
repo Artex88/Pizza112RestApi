@@ -7,8 +7,8 @@ import jakarta.validation.constraints.Size;
 public class ClientDTO {
 
     @Column(name = "phone_number")
-    @NotEmpty(message = "Пароль не должен быть пустым")
-    @Size(min = 11, message = "Номер должен содержать 11 цифр")
+    @NotEmpty(message = "Номер не должен быть пустым")
+    @Size(min = 11, max = 11 , message = "Номер должен содержать ровно 11 цифр")
     private String phoneNumber;
 
     public String getPhoneNumber() {

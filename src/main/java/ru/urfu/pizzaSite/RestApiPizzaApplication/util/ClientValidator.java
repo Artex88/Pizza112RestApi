@@ -24,8 +24,8 @@ public class ClientValidator implements Validator {
 
     @Override
     public void validate(Object target, Errors errors) {
-        ClientInfo clientInfo = (ClientInfo) target;
-        if (clientInfoService.findByPhoneNumber(clientInfo.getPhoneNumber()).isPresent())
-            throw new ClientAlreadyExistAuthenticationException();
+//        ClientInfo clientInfo = (ClientInfo) target;
+//        if (clientInfoService.findByPhoneNumber(clientInfo.getPhoneNumber()).isPresent())
+//            throw new ClientAlreadyExistAuthenticationException();
     }
 }
