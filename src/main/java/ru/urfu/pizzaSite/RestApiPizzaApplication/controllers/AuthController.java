@@ -1,5 +1,8 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -34,7 +37,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
+@Tag(name = "Аутентификация и авторизация", description = "Методы для работы с аутентификацией и авторизацией клиентов")
 public class AuthController {
     private final RegistrationService registrationService;
     private final ClientValidator clientValidator;
@@ -69,7 +73,8 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
     @PostMapping("/sms_authentications")
-    public ResponseEntity<ClientResponse> performRegistration(@RequestBody @Valid ClientDTO clientDTO,  BindingResult bindingResult) throws InvalidKeyException {
+    @Operation(summary = "Отправка сообщения с одноразовым кодом на номер телефона")
+    public ResponseEntity<ClientResponse> performRegistration(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона") ClientDTO clientDTO, BindingResult bindingResult) throws InvalidKeyException {
             if (bindingResult.hasErrors()){
                 throw new ClientValidationError(bindingResult);
             }
@@ -78,7 +83,12 @@ public class AuthController {
             return new ResponseEntity<>(new ClientResponse("Message send", System.currentTimeMillis()), HttpStatus.OK);
     }
     @PostMapping("/sms_check")
-    public Map<String, String> performLogin(@RequestBody AuthenticationDTO authenticationDTO) throws InvalidKeyException {
+    @Operation(summary = "Получение номера телефона и кода. Если всё верно, возвращает jwt токен. Для номера телефона 79999999999 существует постояный код 111111.")
+    public Map<String, String> performLogin(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона и одноразовый код") AuthenticationDTO authenticationDTO , BindingResult bindingResult) throws InvalidKeyException {
+
+        if (bindingResult.hasErrors()){
+            throw new ClientValidationError(bindingResult);
+        }
         // TODO ПОЙМАТЬ ОШИБКУ, ЧТО ПОЛЬЗОВАЬЕЛЬ УЖЕ АВТОРИЗОВАН
         if (SecurityContextHolder.getContext().getAuthentication().isAuthenticated()){
             Map.of("message", "пользователь уже авторизован");
@@ -100,7 +110,8 @@ public class AuthController {
     }
 
     @PostMapping("/sms_check/resend")
-    public Map<String, String> resendLogin(@RequestBody @Valid ClientDTO clientDTO) throws InvalidKeyException{
+    @Operation(summary = "Повторная отпрвка сообщения с одноразовым кодом на номер телефона" )
+    public Map<String, String> resendLogin(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона") ClientDTO clientDTO) throws InvalidKeyException{
         clientService.sendRegistrationMessage(clientDTO.getPhoneNumber(),TOTPGenerator.generatePassword(longGenerator.generateLong()));
         return Map.of("message", "Message send");
     }

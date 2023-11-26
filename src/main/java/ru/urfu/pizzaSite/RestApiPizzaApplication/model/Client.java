@@ -2,6 +2,7 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ public class Client {
     private int id;
 
     @Column(name = "phone_number")
+    @NotNull
     @NotEmpty(message = "Пароль не должен быть пустым")
     @Size(min = 11, message = "Номер должен содержать 11 цифр")
     private String phoneNumber;
