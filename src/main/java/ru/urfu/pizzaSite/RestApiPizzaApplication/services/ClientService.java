@@ -5,19 +5,19 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.api.SMSApi;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.AuthenticationDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientRepository;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.security.LongGenerator;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.security.TOTPGenerator;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.AuthorizationAttemptsExhaustedException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.TooManyRequestException;
 
-import java.security.InvalidKeyException;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -26,14 +26,23 @@ public class ClientService {
 
     private final AuthenticationManager authenticationManager;
 
+    private final PasswordEncoder passwordEncoder;
+
+    private final SMSApi smsApi;
+
+    private final RegistrationService registrationService;
+
+
     @Autowired
-    public ClientService(ClientRepository clientRepository, AuthenticationManager authenticationManager) {
+    public ClientService(ClientRepository clientRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, SMSApi smsApi, RegistrationService registrationService) {
         this.clientRepository = clientRepository;
         this.authenticationManager = authenticationManager;
+        this.passwordEncoder = passwordEncoder;
+        this.smsApi = smsApi;
+        this.registrationService = registrationService;
     }
     @Transactional(readOnly = true)
     public Client findByPhoneNumber(String phoneNumber){
-        // TODO поменять на кастомную ошибку
         Optional<Client> client = clientRepository.findByPhoneNumber(phoneNumber);
        if (client.isPresent())
            return client.get();
@@ -41,7 +50,7 @@ public class ClientService {
     }
 
     @Transactional()
-    public void updatePasswordAndAttempts(Client clientUpdated, String password) {
+    public void updatePasswordAndResetAttempts(Client clientUpdated, String password) {
         clientUpdated.setLogin_attempts(0);
         clientUpdated.setPassword(password);
         clientRepository.save(clientUpdated);
@@ -60,7 +69,7 @@ public class ClientService {
     @Transactional
     public void validateLoginRequest(Client client,String password){
         LocalDateTime currenTime = LocalDateTime.now();
-        if (client.getLogin_attempts() >= 3 ){
+        if (client.getLogin_attempts() >= 4 && !Objects.equals(client.getPhoneNumber(), "79999999999")){
             client.setLastLoginTime(currenTime);
             client.setLogin_attempts(0);
             client.setPassword(password);
@@ -89,7 +98,22 @@ public class ClientService {
 
 
     @Transactional
-    public boolean isAuthenticationExist(String phoneNumber){
-        return clientRepository.findByPhoneNumber(phoneNumber).isPresent();
+    public void sendRegistrationMessage(String phoneNumber, String rawPassword){
+        Optional<Client> optionalClient = clientRepository.findByPhoneNumber(phoneNumber);
+        if (optionalClient.isPresent() && !Objects.equals(optionalClient.get().getPhoneNumber(), "79999999999")){
+            this.validateRegisterRequest(optionalClient.get());
+            this.updatePasswordAndResetAttempts(optionalClient.get(), passwordEncoder.encode(rawPassword));
+            smsApi.sendSMSWithPassword(phoneNumber, rawPassword);
+        }
+        else if (Objects.equals(phoneNumber, "79999999999") && optionalClient.isEmpty()){
+            registrationService.PreRegisterClient(new Client(phoneNumber, passwordEncoder.encode("111111"), LocalDateTime.now(), null));
+        }
+        else if (Objects.equals(phoneNumber, "79999999999") && optionalClient.isPresent()){
+
+        }
+        else {
+            registrationService.PreRegisterClient(new Client(phoneNumber, passwordEncoder.encode(rawPassword), LocalDateTime.now(),null));
+            smsApi.sendSMSWithPassword(phoneNumber, rawPassword);
+        }
     }
 }

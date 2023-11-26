@@ -1,6 +1,5 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.controllers;
 
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -8,10 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.api.SMSApi;
@@ -28,11 +26,11 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.services.RegistrationService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.*;
 
 
-import java.net.http.HttpRequest;
 import java.security.InvalidKeyException;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -53,10 +51,12 @@ public class AuthController {
 
     private final ModelMapper modelMapper;
 
+    private final PasswordEncoder passwordEncoder;
+
 
 
     @Autowired
-    public AuthController(RegistrationService registrationService, ClientValidator clientValidator, LongGenerator longGenerator, JWTUtil jwtUtil, ClientService clientService, ClientInfoService clientInfoService, SMSApi smsApi, TOTPGenerator TOTPGenerator, ModelMapper modelMapper) {
+    public AuthController(RegistrationService registrationService, ClientValidator clientValidator, LongGenerator longGenerator, JWTUtil jwtUtil, ClientService clientService, ClientInfoService clientInfoService, SMSApi smsApi, TOTPGenerator TOTPGenerator, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.registrationService = registrationService;
         this.clientValidator = clientValidator;
         this.longGenerator = longGenerator;
@@ -66,25 +66,15 @@ public class AuthController {
         this.smsApi = smsApi;
         this.TOTPGenerator = TOTPGenerator;
         this.modelMapper = modelMapper;
+        this.passwordEncoder = passwordEncoder;
     }
     @PostMapping("/sms_authentications")
-    public ResponseEntity<ClientResponse> performRegistration(@RequestBody @Valid ClientDTO clientDTO, HttpServletRequest httpServletRequest,  BindingResult bindingResult) throws InvalidKeyException {
+    public ResponseEntity<ClientResponse> performRegistration(@RequestBody @Valid ClientDTO clientDTO,  BindingResult bindingResult) throws InvalidKeyException {
             if (bindingResult.hasErrors()){
                 throw new ClientValidationError(bindingResult);
             }
 
-            if (clientService.isAuthenticationExist(clientDTO.getPhoneNumber())) {
-                Client client = clientService.findByPhoneNumber(clientDTO.getPhoneNumber());
-                clientService.validateRegisterRequest(client);
-                String hotpPassword = client.getPassword();
-                smsApi.sendSMSWithPassword(clientDTO.getPhoneNumber(), hotpPassword);
-
-            }
-            else {
-                String hotpPassword = TOTPGenerator.generatePassword(longGenerator.generateLong());
-                registrationService.PreRegisterClient(new Client(clientDTO.getPhoneNumber(), hotpPassword, LocalDateTime.now(),null));
-                smsApi.sendSMSWithPassword(clientDTO.getPhoneNumber(), hotpPassword);
-            }
+            clientService.sendRegistrationMessage(clientDTO.getPhoneNumber(), TOTPGenerator.generatePassword(longGenerator.generateLong()));
             return new ResponseEntity<>(new ClientResponse("Message send", System.currentTimeMillis()), HttpStatus.OK);
     }
     @PostMapping("/sms_check")
@@ -95,31 +85,24 @@ public class AuthController {
         }
 
         Client client = clientService.findByPhoneNumber(authenticationDTO.getPhoneNumber());
-
-        clientService.validateLoginRequest(client, TOTPGenerator.generatePassword(longGenerator.generateLong()));
+        clientService.validateLoginRequest(client, passwordEncoder.encode(TOTPGenerator.generatePassword(longGenerator.generateLong())));
 
         if (clientInfoService.isClientExist(authenticationDTO.getPhoneNumber())) {
-                    clientService.authenticate(authenticationDTO,client,  TOTPGenerator.generatePassword(longGenerator.generateLong()));
+                    clientService.authenticate(authenticationDTO,client,  passwordEncoder.encode(TOTPGenerator.generatePassword(longGenerator.generateLong())));
                 } else {
-                    clientService.authenticate(authenticationDTO,client, TOTPGenerator.generatePassword(longGenerator.generateLong()));
+                    clientService.authenticate(authenticationDTO,client, passwordEncoder.encode(TOTPGenerator.generatePassword(longGenerator.generateLong())));
                     ClientInfo newClientInfo = convertToClient(authenticationDTO);
                     registrationService.register(newClientInfo, client);
                 }
-        String token = jwtUtil.generateToken(authenticationDTO.getPhoneNumber());
+        String token = jwtUtil.generateToken(client.getId());
         return Map.of("jwt-token", token);
 
     }
 
     @PostMapping("/sms_check/resend")
-    public Map<String, String> resendLogin(@RequestBody ClientDTO clientDTO) throws InvalidKeyException{
-        Client client = clientService.findByPhoneNumber(clientDTO.getPhoneNumber());
-        clientService.validateRegisterRequest(client) ;
-
-        String hotpPassword = TOTPGenerator.generatePassword(longGenerator.generateLong());
-        clientService.updatePasswordAndAttempts(client, hotpPassword);
-
-        smsApi.sendSMSWithPassword(clientDTO.getPhoneNumber(), hotpPassword);
-        return Map.of("message", "сообщение отправленно");
+    public Map<String, String> resendLogin(@RequestBody @Valid ClientDTO clientDTO) throws InvalidKeyException{
+        clientService.sendRegistrationMessage(clientDTO.getPhoneNumber(),TOTPGenerator.generatePassword(longGenerator.generateLong()));
+        return Map.of("message", "Message send");
     }
 
     @ExceptionHandler

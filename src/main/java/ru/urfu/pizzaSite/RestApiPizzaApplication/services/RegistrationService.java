@@ -36,7 +36,6 @@ public class RegistrationService {
     public void register(ClientInfo clientInfo, Client client){
         clientInfo.setClient(client);
         clientRepository.save(client);
-        //client.setPassword(passwordEncoder.encode(client.getToken()));
         clientInfoRepository.save(clientInfo);
     }
 
