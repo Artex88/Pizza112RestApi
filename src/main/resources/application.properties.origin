@@ -6,3 +6,6 @@ spring.datasource.password=
 spring.jpa.properties.hibernate.dialect=
 spring.jpa.properties.hibernate.show_sql=
 jwt_secret=
+
+sms_login=
+sms_password=

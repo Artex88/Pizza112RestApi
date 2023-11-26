@@ -16,11 +16,11 @@ import java.util.Date;
 public class JWTUtil {
     @Value("${jwt_secret}")
     private String secret;
-    public String generateToken(String phoneNumber){
+    public String generateToken(int id){
         Date expirationDate = Date.from(ZonedDateTime.now().plusMinutes(60).toInstant());
         return JWT.create()
                 .withSubject("User details")
-                .withClaim("phoneNumber", phoneNumber)
+                .withClaim("id", id)
                 .withIssuedAt(new Date())
                 .withIssuer("spring-app-Pizza112")
                 .withExpiresAt(expirationDate)

@@ -1,10 +1,10 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.util;
 
-public class ClientErrorResponse {
+public class ClientResponse {
     private String message;
     private long timestamp;
 
-    public ClientErrorResponse(String message, long timestamp) {
+    public ClientResponse(String message, long timestamp) {
         this.message = message;
         this.timestamp = timestamp;
     }
