@@ -12,8 +12,8 @@ public class ClientDTO {
 
     @Column(name = "phone_number")
     @NotNull
-    @NotEmpty(message = "Номер не должен быть пустым")
-    @Size(min = 11, max = 11 , message = "Номер должен содержать ровно 11 цифр")
+    @NotEmpty(message = "The number must not be empty")
+    @Size(min = 11, max = 11 , message = "The number must contain exactly 11 digits")
     @Schema(description = "поле номера телефона")
     private String phoneNumber;
 
