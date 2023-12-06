@@ -47,7 +47,6 @@ import java.util.stream.Collectors;
 @Tag(name = "Аутентификация и авторизация", description = "Методы для работы с аутентификацией и авторизацией клиентов")
 public class AuthController {
     private final RegistrationService registrationService;
-    private final ClientValidator clientValidator;
 
     private final LongGenerator longGenerator;
     private final JWTUtil jwtUtil;
@@ -66,9 +65,8 @@ public class AuthController {
 
 
     @Autowired
-    public AuthController(RegistrationService registrationService, ClientValidator clientValidator, LongGenerator longGenerator, JWTUtil jwtUtil, ClientService clientService, ClientInfoService clientInfoService, SMSApi smsApi, TOTPGenerator TOTPGenerator, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
+    public AuthController(RegistrationService registrationService, LongGenerator longGenerator, JWTUtil jwtUtil, ClientService clientService, ClientInfoService clientInfoService, SMSApi smsApi, TOTPGenerator TOTPGenerator, ModelMapper modelMapper, PasswordEncoder passwordEncoder) {
         this.registrationService = registrationService;
-        this.clientValidator = clientValidator;
         this.longGenerator = longGenerator;
         this.jwtUtil = jwtUtil;
         this.clientService = clientService;
@@ -112,9 +110,8 @@ public class AuthController {
     }
     )
     public ResponseEntity<ClientResponse> performRegistration(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона") ClientDTO clientDTO, BindingResult bindingResult) throws InvalidKeyException {
-            if (bindingResult.hasErrors()){
+            if (bindingResult.hasErrors())
                 throw new ClientValidationError(bindingResult);
-            }
 
             clientService.sendRegistrationMessage(clientDTO.getPhoneNumber(), TOTPGenerator.generatePassword(longGenerator.generateLong()));
             return new ResponseEntity<>(new ClientResponse("Message send", System.currentTimeMillis()), HttpStatus.OK);
@@ -155,9 +152,9 @@ public class AuthController {
     }
     )
     public Map<String, String> performLogin(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона и одноразовый код") AuthenticationDTO authenticationDTO , BindingResult bindingResult) throws InvalidKeyException {
-        if (bindingResult.hasErrors()){
+        if (bindingResult.hasErrors())
             throw new ClientValidationError(bindingResult);
-        }
+
         Client client = clientService.findByPhoneNumber(authenticationDTO.getPhoneNumber());
         clientService.validateLoginRequest(client, passwordEncoder.encode(TOTPGenerator.generatePassword(longGenerator.generateLong())));
 
@@ -168,7 +165,7 @@ public class AuthController {
                     ClientInfo newClientInfo = convertToClient(authenticationDTO);
                     registrationService.register(newClientInfo, client);
                 }
-        String token = jwtUtil.generateToken(client.getId());
+        String token = jwtUtil.generateToken(client.getPhoneNumber());
         return Map.of("jwt-token", token);
     }
 
@@ -206,9 +203,9 @@ public class AuthController {
             })
     }
     )
-    public Map<String, String> resendLogin(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона") ClientDTO clientDTO) throws InvalidKeyException{
+    public ResponseEntity<ClientResponse> resendLogin(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона") ClientDTO clientDTO) throws InvalidKeyException{
         clientService.sendRegistrationMessage(clientDTO.getPhoneNumber(),TOTPGenerator.generatePassword(longGenerator.generateLong()));
-        return Map.of("message", "Message send");
+        return new ResponseEntity<>(new ClientResponse("Message send", System.currentTimeMillis()), HttpStatus.OK);
     }
 
     @ExceptionHandler(AuthorizationAttemptsExhaustedException.class)
