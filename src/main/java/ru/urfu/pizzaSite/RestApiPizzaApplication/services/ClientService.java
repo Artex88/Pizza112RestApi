@@ -94,6 +94,10 @@ public class ClientService {
         client.setPassword(newPassword);
         clientRepository.save(client);
     }
+    @Transactional
+    public void save(Client client){
+        clientRepository.save(client);
+    }
 
 
 
@@ -109,7 +113,7 @@ public class ClientService {
             registrationService.PreRegisterClient(new Client(phoneNumber, passwordEncoder.encode("111111"), LocalDateTime.now(), null));
         }
         else if (Objects.equals(phoneNumber, "79999999999") && optionalClient.isPresent()){
-
+            optionalClient.get().setPassword(passwordEncoder.encode("111111"));
         }
         else {
             registrationService.PreRegisterClient(new Client(phoneNumber, passwordEncoder.encode(rawPassword), LocalDateTime.now(),null));

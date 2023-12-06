@@ -41,7 +41,7 @@ public class Client {
         this.login_attempts = login_attempts;
     }
 
-    @OneToOne(mappedBy = "client")
+    @OneToOne(mappedBy = "client", cascade=CascadeType.ALL)
     private ClientInfo client_info;
 
     public Client() {

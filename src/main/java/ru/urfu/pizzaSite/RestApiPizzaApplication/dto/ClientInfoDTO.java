@@ -1,29 +1,15 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import org.hibernate.annotations.Check;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.Date;
 
-@Entity
-@Table(name = "client_info")
-public class ClientInfo {
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    @Column(name = "phone_number")
-    @NotEmpty(message = "Пароль не должен быть пустым")
-    @Size(min = 11, message = "Номер должен содержать 11 цифр")
-    private String phoneNumber;
+public class ClientInfoDTO {
 
     @Column(name = "name")
     @Size(max = 32, message = "Имя может быть максимум 32 символа")
@@ -44,30 +30,10 @@ public class ClientInfo {
     private LocalDate dateOfBirth;
 
     @Column(name = "email")
-    @Email
+    @Email(message = "Поле почты должно иметь формат адреса электронной почты")
     private String email;
 
-    @OneToOne
-    @JoinColumn(name = "client_id", referencedColumnName = "id")
-    private Client client;
-
-    public ClientInfo() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public ClientInfoDTO() {
     }
 
     public String getName() {
@@ -76,14 +42,6 @@ public class ClientInfo {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Client getClient() {
-        return client;
-    }
-
-    public void setClient(Client client) {
-        this.client = client;
     }
 
     public String getSurname() {
@@ -117,4 +75,5 @@ public class ClientInfo {
     public void setEmail(String email) {
         this.email = email;
     }
+
 }
