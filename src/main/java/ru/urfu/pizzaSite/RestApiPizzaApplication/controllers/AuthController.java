@@ -82,7 +82,7 @@ public class AuthController {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     name = "Пример запроса",
                     summary = "Пример запроса на спец номер +79999999999",
-                    value = "{\"phoneNumber\": +79999999999}"
+                    value = "{\"phoneNumber\": 79999999999}"
             ))
     })
     @ApiResponses( value = {

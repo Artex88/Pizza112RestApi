@@ -3,11 +3,11 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
+
 @Entity
 @Table(name = "product")
-@Inheritance(strategy = InheritanceType.JOINED)
-
-public abstract class Product {
+public class Product {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,13 +24,17 @@ public abstract class Product {
     private double basePrice;
 
     @Column(name = "calories")
-    private int calories;
+    private double calories;
 
     @Column(name = "photo")
     private String photoName;
-    @ManyToOne
-    @JoinColumn(name = "id")
+
+    @ManyToOne()
+    @JoinColumn(name = "product_type_name", referencedColumnName = "name")
     private ProductType productType;
+
+    @OneToMany(mappedBy = "product")
+    private List<Pizza> pizzaList;
 
     public Product() {
     }
@@ -67,11 +71,11 @@ public abstract class Product {
         this.basePrice = basePrice;
     }
 
-    public int getCalories() {
+    public double getCalories() {
         return calories;
     }
 
-    public void setCalories(int calories) {
+    public void setCalories(double calories) {
         this.calories = calories;
     }
 
@@ -89,5 +93,13 @@ public abstract class Product {
 
     public void setProductType(ProductType productType) {
         this.productType = productType;
+    }
+
+    public List<Pizza> getPizzaList() {
+        return pizzaList;
+    }
+
+    public void setPizzaList(List<Pizza> pizzaList) {
+        this.pizzaList = pizzaList;
     }
 }
