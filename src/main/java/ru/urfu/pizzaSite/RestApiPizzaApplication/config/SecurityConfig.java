@@ -47,7 +47,7 @@ public class SecurityConfig {
         //TODO
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> authorizationManagerRequestMatcherRegistry
-                        .requestMatchers("/api/auth/**","/v2/api-docs/", "/v3/api-docs/","/v3/api-docs/**","/swagger-resources", "/swagger-resources/**", "configuration/ui", "configuration/security", "/swagger-ui/**", "/webjars/**", "/swagger-ui.html")
+                        .requestMatchers("/api/auth/**", "/api/show/**","/v2/api-docs/", "/v3/api-docs/","/v3/api-docs/**","/swagger-resources", "/swagger-resources/**", "configuration/ui", "configuration/security", "/swagger-ui/**", "/webjars/**", "/swagger-ui.html")
                         .permitAll().anyRequest().authenticated())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

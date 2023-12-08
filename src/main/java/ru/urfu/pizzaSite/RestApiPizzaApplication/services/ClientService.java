@@ -12,8 +12,8 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.api.SMSApi;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.AuthenticationDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientRepository;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.AuthorizationAttemptsExhaustedException;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.TooManyRequestException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.AuthorizationAttemptsExhaustedException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.TooManyRequestException;
 
 import java.time.LocalDateTime;
 import java.util.Collections;

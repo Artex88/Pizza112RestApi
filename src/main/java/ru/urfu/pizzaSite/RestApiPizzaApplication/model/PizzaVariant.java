@@ -24,6 +24,10 @@ public class PizzaVariant {
     @OneToMany(mappedBy = "pizzaVariant")
     private List<Pizza> pizzaList;
 
+    @ManyToOne()
+    @JoinColumn(name = "product_id", referencedColumnName = "id")
+    private Product product;
+
     public PizzaVariant() {
     }
 
@@ -66,4 +70,13 @@ public class PizzaVariant {
     public void setPizzaList(List<Pizza> pizzaList) {
         this.pizzaList = pizzaList;
     }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
 }
+

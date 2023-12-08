@@ -11,9 +11,6 @@ public class Pizza {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "weight_in_gram")
-    private int weight;
-
     @ManyToOne()
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
@@ -24,14 +21,6 @@ public class Pizza {
     private PizzaVariant pizzaVariant;
 
     public Pizza() {
-    }
-
-    public int getWeight() {
-        return weight;
-    }
-
-    public void setWeight(int weight) {
-        this.weight = weight;
     }
 
     public PizzaVariant getPizzaVariant() {

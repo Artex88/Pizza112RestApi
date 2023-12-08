@@ -12,7 +12,7 @@ public class ProductType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(name = "name")
-    private String productType;
+    private String name;
 
     @OneToMany(mappedBy = "productType")
     private List<Product> productList;
@@ -28,12 +28,12 @@ public class ProductType {
         this.id = id;
     }
 
-    public String getProductType() {
-        return productType;
+    public String getName() {
+        return name;
     }
 
-    public void setProductType(String productType) {
-        this.productType = productType;
+    public void setName(String productType) {
+        this.name = productType;
     }
 
     public List<Product> getProductList() {

@@ -1,18 +1,17 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.dto;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.List;
+public class ProductDTO {
 
-@Entity
-@Table(name = "product")
-public class Product {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
     @Column(name = "name")
     @NotNull
     private String productName;
@@ -28,27 +27,6 @@ public class Product {
 
     @Column(name = "photo")
     private String photoName;
-
-    @ManyToOne()
-    @JoinColumn(name = "product_type_name", referencedColumnName = "name")
-    private ProductType productType;
-
-    @OneToMany(mappedBy = "product")
-    private List<Pizza> pizzaList;
-
-    @OneToMany(mappedBy = "product")
-    private List<PizzaVariant> pizzaVariants;
-
-    public Product() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getProductName() {
         return productName;
@@ -90,27 +68,11 @@ public class Product {
         this.photoName = photoName;
     }
 
-    public ProductType getProductType() {
-        return productType;
+    public int getId() {
+        return id;
     }
 
-    public void setProductType(ProductType productType) {
-        this.productType = productType;
-    }
-
-    public List<Pizza> getPizzaList() {
-        return pizzaList;
-    }
-
-    public void setPizzaList(List<Pizza> pizzaList) {
-        this.pizzaList = pizzaList;
-    }
-
-    public List<PizzaVariant> getPizzaVariants() {
-        return pizzaVariants;
-    }
-
-    public void setPizzaVariants(List<PizzaVariant> pizzaVariants) {
-        this.pizzaVariants = pizzaVariants;
+    public void setId(int id) {
+        this.id = id;
     }
 }

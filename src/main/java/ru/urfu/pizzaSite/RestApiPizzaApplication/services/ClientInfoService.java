@@ -8,7 +8,7 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientInfoRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.ClientInfoNotFoundException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ClientInfoNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;

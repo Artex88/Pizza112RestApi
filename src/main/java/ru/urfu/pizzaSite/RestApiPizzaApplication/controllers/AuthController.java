@@ -4,11 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -33,13 +30,13 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientInfoService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.RegistrationService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.*;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.AuthorizationAttemptsExhaustedException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ClientValidationError;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.TooManyRequestException;
 
 
 import java.security.InvalidKeyException;
-import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController

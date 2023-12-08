@@ -15,9 +15,9 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientInfoService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.ClientInfoNotFoundException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ClientInfoNotFoundException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.ClientResponse;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.ClientValidationError;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ClientValidationError;
 
 import java.util.Map;
 import java.util.stream.Collectors;

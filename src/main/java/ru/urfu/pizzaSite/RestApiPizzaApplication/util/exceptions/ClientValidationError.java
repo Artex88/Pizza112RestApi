@@ -1,4 +1,4 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.util;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions;
 
 
 import org.springframework.validation.BindingResult;
