@@ -13,6 +13,7 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.AuthenticationDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.AuthorizationAttemptsExhaustedException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.TooManyRequestException;
 
 import java.time.LocalDateTime;
@@ -46,7 +47,7 @@ public class ClientService {
         Optional<Client> client = clientRepository.findByPhoneNumber(phoneNumber);
        if (client.isPresent())
            return client.get();
-       throw new UsernameNotFoundException("Client not found");
+       throw new NotFoundException("Client with this phone number does not exist");
     }
 
     @Transactional()

@@ -77,7 +77,6 @@ public class AuthController {
     @Operation(summary = "Отправка сообщения с одноразовым кодом на номер телефона")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на отправку сообщения с кодом для спец. номера +79999999999", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                    name = "Пример запроса",
                     summary = "Пример запроса на спец номер +79999999999",
                     value = "{\"phoneNumber\": 79999999999}"
             ))
@@ -85,21 +84,18 @@ public class AuthController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Код отправлен на указаный номер телефона", content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                            name = "Пример ответа(кавычки экранируются)",
                             summary = "Пример ответа, что сообщение отправленно на конкретный номер",
                             value = "{\"message\": Message send , \"timestamp\": 123456789}"
                     ))
             }),
             @ApiResponse(responseCode = "429", description = "При попытке отправлять новое сообщение чаще, чем за одну минуту",content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                            name = "Пример ответа(кавычки экранируются)",
                             summary = "Пример ответа на ошибку 429",
                             value = "{\"message\": Too many requests, please wait one minute , \"timestamp\": 123456789}"
                     ))
             }),
             @ApiResponse(responseCode = "400", description = "Некорректно введен номер телефона( должен быть без плюса, 11 символов)",content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                            name = "Пример ответа(кавычки экранируются)",
                             summary = "Пример ответа на ошибку 400",
                             value = "{\"message\": The number must contain exactly 11 digits , \"timestamp\": 123456789}"
                     ))
@@ -119,7 +115,6 @@ public class AuthController {
     @Operation(summary = "Получение номера телефона и кода. Если всё верно, возвращает jwt токен. Для номера телефона 79999999999 существует постояный код 111111.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на авторизацию для спец. номера +79999999999", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                    name = "Пример запроса авторизации",
                     summary = "Пример запроса авторизации на спец номер +79999999999",
                     value = "{\"phoneNumber\": 79999999999 , \"password\": 111111}"
             ))
@@ -127,21 +122,18 @@ public class AuthController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Код и номер телефона совпадают, возвращается jwt токен", content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                            name = "Пример ответа(кавычки экранируются)",
                             summary = "Пример ответа на спец. номер 79999999999, если номер и код правильные",
                             value = "{\"jwt-token\": mtprrwlko4032krwmekogeoi24grgw...}"
                     ))
             }),
             @ApiResponse(responseCode = "429", description = "Когда пользователь потратил все 3 доступные попытки на ввод. Требуется ещё раз отправить сообщение", content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                            name = "Пример ответа(кавычки экранируются)",
                             summary = "Пример ответа, если пользователь потратил все попытки",
                             value = "{\"message\": You have spent all possible attempts, resend the message , \"timestamp\": 123456789}"
                     ))
             }),
             @ApiResponse(responseCode = "400", description = "Некорректно введен номер телефона( должен быть без плюса, 11 символов) или код(6 символов)",content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                            name = "Пример ответа(кавычки экранируются)",
                             summary = "Пример ответа, если пользователь неправильно ввел номер телефона или код",
                             value = "{\"message\": Incorrect code or login , \"timestamp\": 123456789}"
                     ))
@@ -171,7 +163,6 @@ public class AuthController {
     @Operation(summary = "Повторная отпрвка сообщения с одноразовым кодом на номер телефона")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на повторную отправку кода для спец. номера +79999999999", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                    name = "Пример запроса на повт. отправку кода",
                     summary = "Пример запроса на повт. отправку кода на спец номер +79999999999",
                     value = "{\"phoneNumber\": 79999999999}"
             ))
@@ -179,21 +170,18 @@ public class AuthController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Повторная отправка сообщения с кодом на номер телефона", content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                            name = "Пример ответа(кавычки экранируются)",
                             summary = "Пример ответа, что сообщение отправленно на конкретный номер",
                             value = "{\"message\": Message send , \"timestamp\": 123456789}"
                     ))
             }),
             @ApiResponse(responseCode = "429", description = "При попытке отправлять новое сообщение чаще, чем за одну минуту",content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                            name = "Пример ответа(кавычки экранируются)",
                             summary = "Пример ответа на ошибку 429",
                             value = "{\"message\": Too many requests, please wait one minute , \"timestamp\": 123456789}"
                     ))
             }),
             @ApiResponse(responseCode = "400", description = "Некорректно введен номер телефона( должен быть без плюса, 11 символов)",content = {
                     @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                            name = "Пример ответа(кавычки экранируются)",
                             summary = "Пример ответа на ошибку 400",
                             value = "{\"message\": The number must contain exactly 11 digits , \"timestamp\": 123456789}"
                     ))

@@ -4,15 +4,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientInfoDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientInfoRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ImageSaveException;
@@ -31,7 +28,7 @@ public class ClientInfoService {
 
     private static final List<String> ALLOWED_IMAGE_TYPES = Arrays.asList("image/jpeg", "image/png", "image/webp");
 
-    private static final long MAX_IMAGE_SIZE = 307200;
+    private static final long MAX_IMAGE_SIZE = 204800;
     private final JWTUtil jwtUtil;
 
     @Autowired
@@ -55,19 +52,18 @@ public class ClientInfoService {
         BeanUtils.copyProperties(clientInfoDTO, clientInfo, getNullPropertyNames(clientInfoDTO));
         return client;
     }
-    // пример пути http://localhost:8080/images/Avatars/default.webp
     @Transactional
     public void updateAvatar(ClientInfo clientInfo, MultipartFile imageFile) throws IOException {
         String contentType = validateImageAndGetContentType(imageFile);
         String absolutePath = "src/main/resources/static/images/Avatars/";
         String customPath = clientInfo.getId() + "." + contentType;
         try {
-            String photoName = clientInfo.getPhotoName();
+            String photoName = clientInfo.getImageName();
             if (photoName != null){
                 Files.delete(Paths.get(absolutePath + photoName));
             }
             Files.write(Paths.get(absolutePath + customPath), imageFile.getBytes());
-            clientInfo.setPhotoName(customPath);
+            clientInfo.setImageName(customPath);
             clientInfoRepository.save(clientInfo);
         } catch (IOException e) {
             throw new IOException();
@@ -109,7 +105,7 @@ public class ClientInfoService {
         json.put("surname", clientInfo.getSurname());
         json.put("patronymic", clientInfo.getPatronymic());
         json.put("phoneNumber", clientInfo.getPhoneNumber());
-        json.put("photoName", clientInfo.getPhotoName());
+        json.put("imageName", clientInfo.getImageName());
         if (clientInfo.getDateOfBirth() == null)
             json.put("dateOfBirth", null);
         else

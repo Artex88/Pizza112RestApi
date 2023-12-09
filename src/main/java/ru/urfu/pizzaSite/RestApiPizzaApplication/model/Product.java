@@ -1,7 +1,6 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -37,9 +36,9 @@ public class Product {
     @NotEmpty(message = "Калории продукта не могут быть пустыми")
     private double calories;
 
-    @Column(name = "photo")
+    @Column(name = "image_name")
     @Size(max = 255, message = "Путь к картике может быть максимум 255 символов")
-    private String photoName;
+    private String imageName;
 
     @ManyToOne()
     @JoinColumn(name = "product_type_name", referencedColumnName = "name")
@@ -94,12 +93,12 @@ public class Product {
         this.calories = calories;
     }
 
-    public String getPhotoName() {
-        return photoName;
+    public String getImageName() {
+        return imageName;
     }
 
-    public void setPhotoName(String photoName) {
-        this.photoName = photoName;
+    public void setImageName(String photoName) {
+        this.imageName = photoName;
     }
 
     public ProductType getProductType() {

@@ -1,13 +1,9 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import org.hibernate.annotations.Check;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name = "client_info")
@@ -38,8 +34,8 @@ public class ClientInfo {
     @Pattern(regexp = "^[^0-9]*$", message = "В отчестве не должно быть цифр")
     private String patronymic;
 
-    @Column(name = "photo_name")
-    private String photoName;
+    @Column(name = "image_name")
+    private String imageName;
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
@@ -119,11 +115,11 @@ public class ClientInfo {
         this.email = email;
     }
 
-    public String getPhotoName() {
-        return photoName;
+    public String getImageName() {
+        return imageName;
     }
 
-    public void setPhotoName(String photoName) {
-        this.photoName = photoName;
+    public void setImageName(String photoName) {
+        this.imageName = photoName;
     }
 }
