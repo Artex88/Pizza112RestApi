@@ -29,7 +29,7 @@ public class ClientInfoService {
 
     private final ClientInfoRepository clientInfoRepository;
 
-    private static final List<String> ALLOWED_IMAGE_TYPES = Arrays.asList("image/jpeg", "image/png");
+    private static final List<String> ALLOWED_IMAGE_TYPES = Arrays.asList("image/jpeg", "image/png", "image/webp");
 
     private static final long MAX_IMAGE_SIZE = 307200;
     private final JWTUtil jwtUtil;
@@ -61,9 +61,13 @@ public class ClientInfoService {
         String absolutePath = "src/main/resources/static/images/Avatars/";
         String customPath = clientInfo.getId() + "." + contentType;
         try {
-            var path = Paths.get(absolutePath + customPath);
-            Files.write(path, imageFile.getBytes());
-            clientInfo.setPhotoName(String.valueOf(clientInfo.getId()));
+            String photoName = clientInfo.getPhotoName();
+            if (photoName != null){
+                Files.delete(Paths.get(absolutePath + photoName));
+            }
+            Files.write(Paths.get(absolutePath + customPath), imageFile.getBytes());
+            clientInfo.setPhotoName(customPath);
+            clientInfoRepository.save(clientInfo);
         } catch (IOException e) {
             throw new IOException();
         }
