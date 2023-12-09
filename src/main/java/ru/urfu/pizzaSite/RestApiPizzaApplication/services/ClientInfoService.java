@@ -55,6 +55,7 @@ public class ClientInfoService {
         BeanUtils.copyProperties(clientInfoDTO, clientInfo, getNullPropertyNames(clientInfoDTO));
         return client;
     }
+    // пример пути http://localhost:8080/images/Avatars/default.webp
     @Transactional
     public void updateAvatar(ClientInfo clientInfo, MultipartFile imageFile) throws IOException {
         String contentType = validateImageAndGetContentType(imageFile);

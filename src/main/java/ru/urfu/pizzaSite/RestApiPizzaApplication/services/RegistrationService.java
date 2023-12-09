@@ -35,7 +35,7 @@ public class RegistrationService {
     @Transactional
     public void register(ClientInfo clientInfo, Client client){
         clientInfo.setClient(client);
-        clientInfo.setPhotoName("default.png");
+        clientInfo.setPhotoName("default.webp");
         clientRepository.save(client);
         clientInfoRepository.save(clientInfo);
     }

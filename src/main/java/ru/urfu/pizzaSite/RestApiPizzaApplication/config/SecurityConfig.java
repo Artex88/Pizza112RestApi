@@ -53,7 +53,7 @@ public class SecurityConfig {
         //TODO
         http.csrf(AbstractHttpConfigurer::disable).cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configure(http))
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> authorizationManagerRequestMatcherRegistry
-                        .requestMatchers("/api/auth/**", "/api/show/**","/v2/api-docs/", "/v3/api-docs/","/v3/api-docs/**","/swagger-resources", "/swagger-resources/**", "configuration/ui", "configuration/security", "/swagger-ui/**", "/webjars/**", "/swagger-ui.html")
+                        .requestMatchers( "/images/**", "/api/auth/**", "/api/show/**","/v2/api-docs/", "/v3/api-docs/","/v3/api-docs/**","/swagger-resources", "/swagger-resources/**", "configuration/ui", "configuration/security", "/swagger-ui/**", "/webjars/**", "/swagger-ui.html")
                         .permitAll().anyRequest().authenticated())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
