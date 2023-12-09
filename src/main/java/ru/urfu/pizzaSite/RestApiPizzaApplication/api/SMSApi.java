@@ -29,22 +29,4 @@ public class SMSApi {
         HttpEntity<Map<String,String>> request = new HttpEntity<>(jsonToSend);
         response = restTemplate.postForObject(url, request, String.class);
     }
-
-    public String getResponse() {
-        if (response.contains("OK"))
-            return "OK";
-        else {
-            return errorIdentifier(response.substring(8,9));
-        }
-    }
-
-    private String errorIdentifier(String errorCode){
-        if (errorCode.contains("8"))
-            return "The message to the specified number cannot be delivered";
-        else if (errorCode.contains("9"))
-            return "Too many requests on one number, please wait one minute";
-        else
-            return "Error sending message";
-    }
-
 }

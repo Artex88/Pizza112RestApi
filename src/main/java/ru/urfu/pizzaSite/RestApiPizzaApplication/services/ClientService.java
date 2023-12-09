@@ -12,8 +12,9 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.api.SMSApi;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.AuthenticationDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientRepository;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.AuthorizationAttemptsExhaustedException;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.TooManyRequestException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.AuthorizationAttemptsExhaustedException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.TooManyRequestException;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -46,7 +47,7 @@ public class ClientService {
         Optional<Client> client = clientRepository.findByPhoneNumber(phoneNumber);
        if (client.isPresent())
            return client.get();
-       throw new UsernameNotFoundException("Client not found");
+       throw new NotFoundException("Client with this phone number does not exist");
     }
 
     @Transactional()
@@ -109,11 +110,11 @@ public class ClientService {
             this.updatePasswordAndResetAttempts(optionalClient.get(), passwordEncoder.encode(rawPassword));
             smsApi.sendSMSWithPassword(phoneNumber, rawPassword);
         }
-        else if (Objects.equals(phoneNumber, "79999999999") && optionalClient.isEmpty()){
-            registrationService.PreRegisterClient(new Client(phoneNumber, passwordEncoder.encode("111111"), LocalDateTime.now(), null));
-        }
-        else if (Objects.equals(phoneNumber, "79999999999") && optionalClient.isPresent()){
-            optionalClient.get().setPassword(passwordEncoder.encode("111111"));
+        else if (Objects.equals(phoneNumber, "79999999999")){
+            if (optionalClient.isPresent())
+                optionalClient.get().setPassword(passwordEncoder.encode("111111"));
+            else
+                registrationService.PreRegisterClient(new Client(phoneNumber, passwordEncoder.encode("111111"), LocalDateTime.now(), null));
         }
         else {
             registrationService.PreRegisterClient(new Client(phoneNumber, passwordEncoder.encode(rawPassword), LocalDateTime.now(),null));

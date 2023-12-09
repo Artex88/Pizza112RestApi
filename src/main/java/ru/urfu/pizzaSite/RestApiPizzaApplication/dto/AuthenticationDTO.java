@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-
+@Schema(description = "Сущность, которую нужно передать, чтобы получить jwt-token")
 public class AuthenticationDTO {
     @Column(name = "phone_number")
     @NotEmpty(message = "The number must not be empty")

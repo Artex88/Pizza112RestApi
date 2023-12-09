@@ -10,6 +10,7 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientInfoRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.ClientDetail;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 
 import java.util.Optional;
 
@@ -26,7 +27,7 @@ public class ClientDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String phoneNumber) throws UsernameNotFoundException {
         Optional<Client> client = clientRepository.findByPhoneNumber(phoneNumber);
         if (client.isEmpty())
-            throw new UsernameNotFoundException("Client not found");
+            throw new NotFoundException("Client with this phone number does not exist");
         return new ClientDetail(client.get());
     }
 }

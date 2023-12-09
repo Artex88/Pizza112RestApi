@@ -1,16 +1,9 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import org.hibernate.annotations.Check;
-import org.springframework.format.annotation.DateTimeFormat;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name = "client_info")
@@ -21,7 +14,8 @@ public class ClientInfo {
     private int id;
 
     @Column(name = "phone_number")
-    @NotEmpty(message = "Пароль не должен быть пустым")
+    @NotEmpty(message = "Поле номера телефона не должено быть пустым")
+    @NotNull()
     @Size(min = 11, message = "Номер должен содержать 11 цифр")
     private String phoneNumber;
 
@@ -39,6 +33,9 @@ public class ClientInfo {
     @Size(max = 32, message = "Отчество может быть максимум 32 символа")
     @Pattern(regexp = "^[^0-9]*$", message = "В отчестве не должно быть цифр")
     private String patronymic;
+
+    @Column(name = "image_name")
+    private String imageName;
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
@@ -116,5 +113,13 @@ public class ClientInfo {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String photoName) {
+        this.imageName = photoName;
     }
 }
