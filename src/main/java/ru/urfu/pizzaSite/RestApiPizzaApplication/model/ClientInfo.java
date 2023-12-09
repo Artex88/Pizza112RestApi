@@ -2,10 +2,7 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import org.hibernate.annotations.Check;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -21,7 +18,8 @@ public class ClientInfo {
     private int id;
 
     @Column(name = "phone_number")
-    @NotEmpty(message = "Пароль не должен быть пустым")
+    @NotEmpty(message = "Поле номера телефона не должено быть пустым")
+    @NotNull()
     @Size(min = 11, message = "Номер должен содержать 11 цифр")
     private String phoneNumber;
 

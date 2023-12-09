@@ -1,13 +1,17 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
 @Entity
 @Table(name = "product")
 public class Product {
+
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,18 +19,26 @@ public class Product {
 
     @Column(name = "name")
     @NotNull
+    @NotEmpty(message = "Название продукта не может быть пустым")
+    @Size(max = 128, message = "Название может быть максимум 128 символов")
     private String productName;
 
     @Column(name = "description")
+    @Size(max = 255, message = "Описание может быть максимум 255 символов")
     private String ProductDescription;
 
     @Column(name = "base_price")
+    @NotNull
+    @NotEmpty(message = "Цена продукта не может быть пустой")
     private double basePrice;
 
     @Column(name = "calories")
+    @NotNull
+    @NotEmpty(message = "Калории продукта не могут быть пустыми")
     private double calories;
 
     @Column(name = "photo")
+    @Size(max = 255, message = "Путь к картике может быть максимум 255 символов")
     private String photoName;
 
     @ManyToOne()

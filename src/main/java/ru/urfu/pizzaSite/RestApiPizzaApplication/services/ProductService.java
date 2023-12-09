@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ProductRepository;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.ProductTypes;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
 
 import java.util.List;
 
@@ -30,18 +30,17 @@ public class ProductService {
 
     public List<Product> findAllCertainProductsAndDisplayCertainCount(ProductTypes productType , Pageable pageable){
         Page<Product> productPage = productRepository.findByProductType(productTypeService.findByName(productType), pageable);
-        List<Product> productList = productPage.getContent();
-        return productList;
+        return productPage.getContent();
     }
 
     public Pageable getPageable(ShowDTO showDTO) {
         Pageable pageable;
         if (showDTO.getSort() == null)
-            pageable =  PageRequest.of(0, showDTO.getCount(), Sort.by("id"));
+            pageable = PageRequest.of(0, showDTO.getCount(), Sort.by("id"));
         else if (showDTO.getSort().contains("-"))
             pageable = PageRequest.of(0, showDTO.getCount(), Sort.by(Sort.Direction.DESC, showDTO.getSort().substring(1)));
         else
-            pageable =  PageRequest.of(0, showDTO.getCount(), Sort.by(showDTO.getSort()));
+            pageable = PageRequest.of(0, showDTO.getCount(), Sort.by(showDTO.getSort()));
         return pageable;
     }
 }

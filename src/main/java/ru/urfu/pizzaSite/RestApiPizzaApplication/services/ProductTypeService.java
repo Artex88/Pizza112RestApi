@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ProductType;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ProductTypeRepository;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.ProductTypes;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ProductTypeNotFoundException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 
 import java.util.Optional;
 
@@ -25,7 +25,6 @@ public class ProductTypeService {
         Optional<ProductType> productTypeOptional = productTypeRepository.findByName(productType.name());
         if (productTypeOptional.isPresent())
             return productTypeOptional.get();
-        // TODO ДОБАВИТЬ КАСТОМНУЮ ОШИБКУ
-        throw new ProductTypeNotFoundException();
+        throw new NotFoundException("There is no product type with this name");
     }
 }

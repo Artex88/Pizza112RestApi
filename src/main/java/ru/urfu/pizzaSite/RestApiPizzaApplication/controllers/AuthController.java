@@ -23,15 +23,15 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.AuthenticationDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.LongGenerator;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.TOTPGenerator;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientInfoService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.RegistrationService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.AuthorizationAttemptsExhaustedException;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ClientValidationError;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ClientValidationException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.TooManyRequestException;
 
 
@@ -108,7 +108,7 @@ public class AuthController {
     )
     public ResponseEntity<ClientResponse> performRegistration(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона") ClientDTO clientDTO, BindingResult bindingResult) throws InvalidKeyException {
             if (bindingResult.hasErrors())
-                throw new ClientValidationError(bindingResult);
+                throw new ClientValidationException(bindingResult);
 
             clientService.sendRegistrationMessage(clientDTO.getPhoneNumber(), TOTPGenerator.generatePassword(longGenerator.generateLong()));
             return new ResponseEntity<>(new ClientResponse("Message send", System.currentTimeMillis()), HttpStatus.OK);
@@ -121,7 +121,7 @@ public class AuthController {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     name = "Пример запроса авторизации",
                     summary = "Пример запроса авторизации на спец номер +79999999999",
-                    value = "{\"phoneNumber\": +79999999999 , \"password\": 111111}"
+                    value = "{\"phoneNumber\": 79999999999 , \"password\": 111111}"
             ))
     })
     @ApiResponses( value = {
@@ -150,13 +150,13 @@ public class AuthController {
     )
     public Map<String, String> performLogin(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона и одноразовый код") AuthenticationDTO authenticationDTO , BindingResult bindingResult) throws InvalidKeyException {
         if (bindingResult.hasErrors())
-            throw new ClientValidationError(bindingResult);
+            throw new ClientValidationException(bindingResult);
 
         Client client = clientService.findByPhoneNumber(authenticationDTO.getPhoneNumber());
         clientService.validateLoginRequest(client, passwordEncoder.encode(TOTPGenerator.generatePassword(longGenerator.generateLong())));
 
         if (clientInfoService.isClientExist(authenticationDTO.getPhoneNumber())) {
-                    clientService.authenticate(authenticationDTO,client,  passwordEncoder.encode(TOTPGenerator.generatePassword(longGenerator.generateLong())));
+                    clientService.authenticate(authenticationDTO, client,  passwordEncoder.encode(TOTPGenerator.generatePassword(longGenerator.generateLong())));
                 } else {
                     clientService.authenticate(authenticationDTO,client, passwordEncoder.encode(TOTPGenerator.generatePassword(longGenerator.generateLong())));
                     ClientInfo newClientInfo = convertToClient(authenticationDTO);
@@ -173,7 +173,7 @@ public class AuthController {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     name = "Пример запроса на повт. отправку кода",
                     summary = "Пример запроса на повт. отправку кода на спец номер +79999999999",
-                    value = "{\"phoneNumber\": +79999999999}"
+                    value = "{\"phoneNumber\": 79999999999}"
             ))
     })
     @ApiResponses( value = {
@@ -224,9 +224,9 @@ public class AuthController {
         ClientResponse clientResponse = new ClientResponse("Incorrect code or login", System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
-    @ExceptionHandler(ClientValidationError.class)
+    @ExceptionHandler(ClientValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<ClientResponse> handleException(ClientValidationError e){
+    private ResponseEntity<ClientResponse> handleException(ClientValidationException e){
         String k = e.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("; "));
         ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);

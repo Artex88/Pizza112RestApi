@@ -1,6 +1,9 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
@@ -12,6 +15,9 @@ public class ProductType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(name = "name")
+    @NotNull
+    @NotEmpty
+    @Size(max = 64, message = "Название типа продукта может быть максимум 64 символа")
     private String name;
 
     @OneToMany(mappedBy = "productType")

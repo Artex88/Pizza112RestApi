@@ -1,6 +1,7 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import java.util.List;
 
@@ -13,12 +14,19 @@ public class PizzaVariant {
     private int id;
 
     @Column(name = "name")
+    @NotNull
+    @NotEmpty(message = "Кодовое название варианта пиццы не может быть пустым")
+    @Size(max = 8, message = "Кодовое название варианта пиццы может быть максимум 8 символов")
     private String pizzaVariantName;
 
     @Column(name = "price")
+    @NotNull
+    @NotEmpty(message = "Цена варианта пиццы не может быть пустой")
     private double pizzaVariantPrice;
 
     @Column(name = "weight")
+    @NotNull
+    @NotEmpty(message = "Вес варианта пиццы не может быть пустой")
     private double pizzaVariantWeight;
 
     @OneToMany(mappedBy = "pizzaVariant")

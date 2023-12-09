@@ -16,6 +16,10 @@ public class ClientInfoDTO {
     @Pattern(regexp = "^[^0-9]*$", message = "В имени не должно быть цифр")
     private String name;
 
+    @Column(name = "phone_number")
+    @Size(min = 11, message = "Номер должен содержать 11 цифр")
+    private String phoneNumber;
+
     @Column(name = "surname")
     @Size(max = 32, message = "Фамилия может быть максимум 32 символа")
     @Pattern(regexp = "^[^0-9]*$", message = "В фамилии не должно быть цифр")
@@ -76,4 +80,11 @@ public class ClientInfoDTO {
         this.email = email;
     }
 
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 }

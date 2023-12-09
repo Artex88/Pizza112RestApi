@@ -109,11 +109,11 @@ public class ClientService {
             this.updatePasswordAndResetAttempts(optionalClient.get(), passwordEncoder.encode(rawPassword));
             smsApi.sendSMSWithPassword(phoneNumber, rawPassword);
         }
-        else if (Objects.equals(phoneNumber, "79999999999") && optionalClient.isEmpty()){
-            registrationService.PreRegisterClient(new Client(phoneNumber, passwordEncoder.encode("111111"), LocalDateTime.now(), null));
-        }
-        else if (Objects.equals(phoneNumber, "79999999999") && optionalClient.isPresent()){
-            optionalClient.get().setPassword(passwordEncoder.encode("111111"));
+        else if (Objects.equals(phoneNumber, "79999999999")){
+            if (optionalClient.isPresent())
+                optionalClient.get().setPassword(passwordEncoder.encode("111111"));
+            else
+                registrationService.PreRegisterClient(new Client(phoneNumber, passwordEncoder.encode("111111"), LocalDateTime.now(), null));
         }
         else {
             registrationService.PreRegisterClient(new Client(phoneNumber, passwordEncoder.encode(rawPassword), LocalDateTime.now(),null));
