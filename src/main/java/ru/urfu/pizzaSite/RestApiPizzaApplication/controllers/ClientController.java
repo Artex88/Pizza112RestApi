@@ -3,6 +3,7 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.controllers;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientInfoDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
@@ -20,7 +22,7 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ClientValidationException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 
-import java.time.LocalDateTime;
+import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -57,6 +59,19 @@ public class ClientController {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @PostMapping("/updatePPAvatar")
+    public ResponseEntity<ClientResponse> updatePPAvatar(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestHeader(HttpHeaders.CONTENT_TYPE) String contentType, @RequestParam("file") MultipartFile multipartFile) throws IOException {
+        if (contentType != null && contentType.startsWith("multipart/form-data")){
+            String phoneNumber = clientInfoService.getPhoneNumberFromToken(token);
+            ClientInfo clientInfo = clientInfoService.findByPhoneNumber(phoneNumber);
+            clientInfoService.updateAvatar(clientInfo, multipartFile);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
     @GetMapping("/getPP")
     public Map<String, String> showPP(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         String phoneNumber = clientInfoService.getPhoneNumberFromToken(token);
@@ -64,9 +79,6 @@ public class ClientController {
 
         return clientInfoService.fillClientInfoJSON(clientInfo);
     }
-
-
-
 
     @ExceptionHandler(ClientValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -88,10 +100,5 @@ public class ClientController {
     private ResponseEntity<ClientResponse> handleException(HttpMessageNotReadableException e){
         ClientResponse clientResponse = new ClientResponse("The date must be transmitted in the format \"1970-MM-dd\"", System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
-    }
-
-
-    public ClientInfo convertToClientInfo(ClientInfoDTO clientInfoDTO){
-        return this.modelMapper.map(clientInfoDTO, ClientInfo.class);
     }
 }

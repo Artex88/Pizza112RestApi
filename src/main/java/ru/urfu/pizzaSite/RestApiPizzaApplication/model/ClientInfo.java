@@ -38,6 +38,9 @@ public class ClientInfo {
     @Pattern(regexp = "^[^0-9]*$", message = "В отчестве не должно быть цифр")
     private String patronymic;
 
+    @Column(name = "photo_name")
+    private String photoName;
+
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
@@ -114,5 +117,13 @@ public class ClientInfo {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhotoName() {
+        return photoName;
+    }
+
+    public void setPhotoName(String photoName) {
+        this.photoName = photoName;
     }
 }
