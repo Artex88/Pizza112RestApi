@@ -29,8 +29,6 @@ public class PizzaVariant {
     @NotEmpty(message = "Вес варианта пиццы не может быть пустой")
     private double pizzaVariantWeight;
 
-    @OneToMany(mappedBy = "pizzaVariant")
-    private List<Pizza> pizzaList;
 
     @ManyToOne()
     @JoinColumn(name = "product_id", referencedColumnName = "id")
@@ -71,13 +69,6 @@ public class PizzaVariant {
         this.pizzaVariantWeight = pizzaVariantWeight;
     }
 
-    public List<Pizza> getPizzaList() {
-        return pizzaList;
-    }
-
-    public void setPizzaList(List<Pizza> pizzaList) {
-        this.pizzaList = pizzaList;
-    }
 
     public Product getProduct() {
         return product;

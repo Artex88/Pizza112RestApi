@@ -16,11 +16,15 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.PizzaVariantDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowProductDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ProductType;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.SortException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.validators.ShowDTOValidator;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.CountException;
@@ -28,6 +32,7 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ShowDTOValidati
 
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -71,7 +76,6 @@ public class ShowController {
                                             "id": 0,
                                             "productName": "Мясная",
                                             "basePrice": 499.0,
-                                            "calories": 264.0,
                                             "imageName": "0.webp",
                                             "productDescription": "Цыпленок, ветчина, пикантная пепперони, острая чоризо, моцарелла, фирменный томатный соус"
                                         },
@@ -79,7 +83,6 @@ public class ShowController {
                                             "id": 1,
                                             "productName": "Мортаделла с песто",
                                             "basePrice": 549.0,
-                                            "calories": 301.5,
                                             "imageName": "1.webp",
                                             "productDescription": "Мортаделла, брынза, моцарелла, соус песто, фирменный томатный соус"
                                         }
@@ -100,6 +103,16 @@ public class ShowController {
         Pageable pageable = productService.getPageable(showDTO);
         List<ProductDTO> productList =  productService.findAllCertainProductsAndDisplayCertainCount(showDTO.getFrom(), pageable).stream().map(this::convertToProductDTO).toList();
         return new ResponseEntity<>(productList, HttpStatus.OK);
+    }
+
+    @PostMapping("/product")
+    public ResponseEntity<Object> showProduct(@RequestBody ShowProductDTO showProductDTO){
+        Product product = productService.findById(showProductDTO.getId());
+        if (Objects.equals(product.getProductType().getName(), ProductTypes.Pizza.name())){
+            Object pizzaVariantDTOList = product.getPizzaVariants().stream().map(pizzaVariant -> modelMapper.map(pizzaVariant, PizzaVariantDTO.class)).toList();
+            return new ResponseEntity<>(pizzaVariantDTOList,HttpStatus.OK);
+        }
+        return null;
     }
     public ProductDTO convertToProductDTO(Product product){
         return this.modelMapper.map(product, ProductDTO.class);

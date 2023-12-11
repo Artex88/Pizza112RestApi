@@ -37,13 +37,6 @@ public class ProductDTO {
     @Schema(description = "поле базовой цены продукта")
     private double basePrice;
 
-    @Column(name = "calories")
-    @NotNull
-    @NotEmpty(message = "Калории продукта не могут быть пустыми")
-    @Digits(integer = 3, fraction = 2, message = "Цена может быть максимум 3-х значным, с 2-мя цифрами после запятой")
-    @Schema(description = "поле кол-ва каллорий в 100г/мл продукта")
-    private double calories;
-
     @Column(name = "image_name")
     @Size(max = 255, message = "Путь к картике может быть максимум 255 символов")
     @Schema(description = "поле картинки продукта")
@@ -73,13 +66,6 @@ public class ProductDTO {
         this.basePrice = basePrice;
     }
 
-    public double getCalories() {
-        return calories;
-    }
-
-    public void setCalories(double calories) {
-        this.calories = calories;
-    }
 
     public String getImageName() {
         return imageName;

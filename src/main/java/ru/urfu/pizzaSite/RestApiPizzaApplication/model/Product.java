@@ -31,10 +31,6 @@ public class Product {
     @NotEmpty(message = "Цена продукта не может быть пустой")
     private double basePrice;
 
-    @Column(name = "calories")
-    @NotNull
-    @NotEmpty(message = "Калории продукта не могут быть пустыми")
-    private double calories;
 
     @Column(name = "image_name")
     @Size(max = 255, message = "Путь к картике может быть максимум 255 символов")
@@ -43,9 +39,6 @@ public class Product {
     @ManyToOne()
     @JoinColumn(name = "product_type_name", referencedColumnName = "name")
     private ProductType productType;
-
-    @OneToMany(mappedBy = "product")
-    private List<Pizza> pizzaList;
 
     @OneToMany(mappedBy = "product")
     private List<PizzaVariant> pizzaVariants;
@@ -85,13 +78,6 @@ public class Product {
         this.basePrice = basePrice;
     }
 
-    public double getCalories() {
-        return calories;
-    }
-
-    public void setCalories(double calories) {
-        this.calories = calories;
-    }
 
     public String getImageName() {
         return imageName;
@@ -109,13 +95,6 @@ public class Product {
         this.productType = productType;
     }
 
-    public List<Pizza> getPizzaList() {
-        return pizzaList;
-    }
-
-    public void setPizzaList(List<Pizza> pizzaList) {
-        this.pizzaList = pizzaList;
-    }
 
     public List<PizzaVariant> getPizzaVariants() {
         return pizzaVariants;
