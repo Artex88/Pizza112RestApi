@@ -4,9 +4,8 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public class ShowProductDTO {
-    @NotNull
-    @NotEmpty(message = "id товара не может быть пустым")
-    private int productId;
+    @NotNull(message = "id продукта не может быть null")
+    private Integer productId;
 
     public ShowProductDTO(){
 

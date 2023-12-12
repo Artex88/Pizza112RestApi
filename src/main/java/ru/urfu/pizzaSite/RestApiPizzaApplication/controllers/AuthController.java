@@ -31,7 +31,7 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientInfoService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.RegistrationService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.AuthorizationAttemptsExhaustedException;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ClientValidationException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.TooManyRequestException;
 
 
@@ -104,7 +104,7 @@ public class AuthController {
     )
     public ResponseEntity<ClientResponse> performRegistration(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона") ClientDTO clientDTO, BindingResult bindingResult) throws InvalidKeyException {
             if (bindingResult.hasErrors())
-                throw new ClientValidationException(bindingResult);
+                throw new ValidationException(bindingResult);
 
             clientService.sendRegistrationMessage(clientDTO.getPhoneNumber(), TOTPGenerator.generatePassword(longGenerator.generateLong()));
             return new ResponseEntity<>(new ClientResponse("Message send", System.currentTimeMillis()), HttpStatus.OK);
@@ -142,7 +142,7 @@ public class AuthController {
     )
     public Map<String, String> performLogin(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона и одноразовый код") AuthenticationDTO authenticationDTO , BindingResult bindingResult) throws InvalidKeyException {
         if (bindingResult.hasErrors())
-            throw new ClientValidationException(bindingResult);
+            throw new ValidationException(bindingResult);
 
         Client client = clientService.findByPhoneNumber(authenticationDTO.getPhoneNumber());
         clientService.validateLoginRequest(client, passwordEncoder.encode(TOTPGenerator.generatePassword(longGenerator.generateLong())));
@@ -212,9 +212,9 @@ public class AuthController {
         ClientResponse clientResponse = new ClientResponse("Incorrect code or login", System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
-    @ExceptionHandler(ClientValidationException.class)
+    @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<ClientResponse> handleException(ClientValidationException e){
+    private ResponseEntity<ClientResponse> handleException(ValidationException e){
         String k = e.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("; "));
         ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);

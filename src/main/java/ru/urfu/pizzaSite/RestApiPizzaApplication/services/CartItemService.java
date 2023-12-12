@@ -3,7 +3,7 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.CartItemDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.CartItemAddDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.CartItemRepository;
 
@@ -35,8 +35,8 @@ public class CartItemService {
     }
 
     @Transactional
-    public void addNewCartItem(CartItemDTO cartItemDTO, Client client, Product product, ProductVariant productVariant) {
-        CartItem cartItem = new CartItem(cartItemDTO.getQuantity(), client.getCart(), product, productVariant);
+    public void addNewCartItem(CartItemAddDTO cartItemAddDTO, Client client, Product product, ProductVariant productVariant) {
+        CartItem cartItem = new CartItem(cartItemAddDTO.getQuantity(), client.getCart(), product, productVariant);
         this.save(cartItem);
         client.getCart().getCartItemSet().add(cartItem);
     }
@@ -47,20 +47,20 @@ public class CartItemService {
                         Objects.equals(cartItem.getProductVariant(), productVariant));
     }
 @Transactional
-    public void updateCartItemByProductVariant(ProductVariant productVariant, CartItemDTO cartItemDTO, Product product, Client client) {
+    public void updateCartItemByProductVariant(ProductVariant productVariant, CartItemAddDTO cartItemAddDTO, Product product, Client client) {
         if (this.cartItemExists(client.getCart(), product, productVariant))
             this.increaseQuantityByOneWithProductVariant(productVariant, client.getCart());
         else
-            this.addNewCartItem(cartItemDTO, client, product,productVariant);
+            this.addNewCartItem(cartItemAddDTO, client, product,productVariant);
     }
 
     @Transactional
-    public void updateCartItemByProduct(CartItemDTO cartItemDTO, Client client, Product product) {
+    public void updateCartItemByProduct(CartItemAddDTO cartItemAddDTO, Client client, Product product) {
         if (this.cartItemExists(client.getCart(), product, null)){
             this.increaseQuantityByOneWithoutProductVariant(product, client.getCart());
         }
         else
-            this.addNewCartItem(cartItemDTO, client, product,null);
+            this.addNewCartItem(cartItemAddDTO, client, product,null);
     }
 
 }

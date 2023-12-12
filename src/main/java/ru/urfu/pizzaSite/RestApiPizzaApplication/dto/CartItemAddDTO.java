@@ -1,20 +1,19 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.dto;
 
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductVariants;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.interfaces.EnumValidator;
 
-public class CartItemDTO {
+public class CartItemAddDTO {
     @NotNull(message = "Поле id продукта не может быть null")
-    @NotEmpty(message = "Поле id продукта не может быть пустым")
-    private int productId;
+    @Digits(integer = 5, fraction = 0)
+    private Integer productId;
     @NotNull(message = "Поле кол-ва выбраного продукта не может быть null")
-    @NotEmpty(message = "Поле кол-ва продукта не может быть пустым")
-    private int quantity;
+    @Digits(integer = 2, fraction = 0)
+    private Integer quantity;
     @NotNull(message = "Поле варианта продукта не может быть null")
-    @NotEmpty(message = "Поле варианта продукта не может быть пустым")
-    @EnumValidator(enumClazz = ProductVariants.class, message = "Неправильно указан тип вида продукта")
     private ProductVariants productVariant;
 
     public int getProductId() {

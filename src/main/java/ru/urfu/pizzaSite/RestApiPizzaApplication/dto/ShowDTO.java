@@ -14,11 +14,10 @@ public class ShowDTO {
     @EnumValidator(enumClazz = ProductTypes.class, message = "Неправильно указан тип продукта")
     @Schema(description = "поле названия типа продукта. Можно передавать только те названия, которые есть в Enum ProductTypes",  enumAsRef = true)
     private ProductTypes from;
-    @NotNull
-    @NotEmpty
+    @NotNull(message = "Кол-во выводимых товаров не может быть равно null")
     @Digits(integer = 2, fraction = 0, message = "Максимальное количество продуктов, предоставляемых за один запрос - 15")
     @Schema(description = "поле для указание количества продукта")
-    private int count;
+    private Integer count;
     @Size(max = 32, message = "Слишком большая строка")
     @Schema(description = "поле для указание поля, по которому будет сортироваться продукт. Если передать название поля с минусом в начале (Пример: -id) будет сортировка в обратном порядке" +
             "Если не передавать это поле, все выведенные товары будут сортироваться по возрастанию по полю id")

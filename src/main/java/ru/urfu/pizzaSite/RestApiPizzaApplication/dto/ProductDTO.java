@@ -32,10 +32,9 @@ public class ProductDTO {
 
     @Column(name = "base_price")
     @NotNull
-    @NotEmpty(message = "Цена продукта не может быть пустой")
     @Digits(integer = 4, fraction = 2, message = "Цена может быть максимум 4-х значным, с 2-мя цифрами после запятой")
     @Schema(description = "поле базовой цены продукта")
-    private double basePrice;
+    private Double basePrice;
 
     @Column(name = "image_name")
     @Size(max = 255, message = "Путь к картике может быть максимум 255 символов")

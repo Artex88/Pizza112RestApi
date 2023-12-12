@@ -13,14 +13,12 @@ public class PizzaVariantDTO {
     private String name;
 
     @Column(name = "price")
-    @NotNull
-    @NotEmpty(message = "Цена варианта пиццы не может быть пустой")
-    private double price;
+    @NotNull(message = "Цена пиццы не может быть null")
+    private Double price;
 
     @Column(name = "weight")
-    @NotNull
-    @NotEmpty(message = "Вес варианта пиццы не может быть пустой")
-    private double weight;
+    @NotNull(message = "Вес пиццы не может быть null")
+    private Double weight;
 
     public PizzaVariantDTO() {
 
@@ -34,20 +32,19 @@ public class PizzaVariantDTO {
         this.name = name;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
-    public double getWeight() {
+    public Double getWeight() {
         return weight;
     }
 
-    public void setWeight(double weight) {
+    public void setWeight(Double weight) {
         this.weight = weight;
     }
-
 }

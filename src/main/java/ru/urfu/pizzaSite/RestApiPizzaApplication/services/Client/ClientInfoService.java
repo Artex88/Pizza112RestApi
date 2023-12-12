@@ -72,12 +72,12 @@ public class ClientInfoService {
 
     private String validateImageAndGetContentType(MultipartFile imageFile){
         if (imageFile.isEmpty() || imageFile.getSize() == 0)
-            throw new ImageSaveException();
+            throw new ImageSaveException("Empty image");
         String contentType = imageFile.getContentType();
         if (contentType == null || !ALLOWED_IMAGE_TYPES.contains(contentType))
-            throw new ImageSaveException();
+            throw new ImageSaveException("Error content type");
         if (imageFile.getSize() > MAX_IMAGE_SIZE)
-            throw new ImageSaveException();
+            throw new ImageSaveException("Too big image");
         return contentType.substring(6);
     }
     private String[] getNullPropertyNames(Object source) {

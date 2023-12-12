@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -20,6 +21,7 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.PizzaVariantDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowProductDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
@@ -94,7 +96,7 @@ public class ShowController {
                     "\n 4. Сортировку можно делать только по полям класса ProductDTO, а единственный стороний доступный символ - '-' перед названием поля, для сортировки в порядке убывания")
     }
     )
-    public ResponseEntity<List<ProductDTO>> showProducts(@RequestBody ShowDTO showDTO, BindingResult bindingResult){
+    public ResponseEntity<List<ProductDTO>> showProducts(@RequestBody @Valid ShowDTO showDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
         showDTOValidator.validate(showDTO,bindingResult);
@@ -104,7 +106,7 @@ public class ShowController {
     }
 
     @PostMapping("/product")
-    public ResponseEntity<Object> showProduct(@RequestBody ShowProductDTO showProductDTO){
+    public ResponseEntity<Object> showProduct(@RequestBody @Valid ShowProductDTO showProductDTO){
         Product product = productService.findById(showProductDTO.getProductId());
         if (Objects.equals(product.getProductType().getName(), ProductTypes.Pizza.name())){
             Object pizzaVariantDTOList = product.getProductVariants().stream().map(pizzaVariant -> modelMapper.map(pizzaVariant, PizzaVariantDTO.class)).toList();
@@ -118,31 +120,31 @@ public class ShowController {
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<Void> handleException(ValidationException e){
+    private ResponseEntity<ClientResponse> handleException(ValidationException e){
         String k = e.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("; "));
-        //ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(CountException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<Void> handleException(CountException e){
-        //ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
-        return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+    private ResponseEntity<ClientResponse> handleException(CountException e){
+        ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(SortException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<Void> handleException(SortException e){
-        //ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
-        return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+    private ResponseEntity<ClientResponse> handleException(SortException e){
+        ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<Void> handleException(HttpMessageNotReadableException e){
-        //ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
-        return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+    private ResponseEntity<ClientResponse> handleException(HttpMessageNotReadableException e){
+        ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
 
 }

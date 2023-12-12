@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,11 +24,12 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientInfoService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ClientValidationException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/client")
@@ -76,7 +78,7 @@ public class ClientController {
     )
     public ResponseEntity<ClientResponse> updatePP(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid ClientInfoDTO clientInfoDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors())
-            throw new ClientValidationException(bindingResult);
+            throw new ValidationException(bindingResult);
         String phoneNumber = clientService.getPhoneNumberFromToken(token);
         Client client = clientService.findByPhoneNumber(phoneNumber);
 
@@ -148,32 +150,32 @@ public class ClientController {
         return clientInfoService.fillClientInfoJSON(clientInfo);
     }
 
-    @ExceptionHandler(ClientValidationException.class)
+    @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<Void> handleException(ClientValidationException e){
-//        String k = e.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("; "));
-//        ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    private ResponseEntity<ClientResponse> handleException(ValidationException e){
+        String k = e.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("; "));
+        ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    private ResponseEntity<Void> handleException(NotFoundException e){
-//        ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    private ResponseEntity<ClientResponse> handleException(NotFoundException e){
+        ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IOException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    private ResponseEntity<Void> handleException(IOException e){
-//        ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    private ResponseEntity<ClientResponse> handleException(IOException e){
+        ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<Void> handleException(HttpMessageNotReadableException e){
-//        ClientResponse clientResponse = new ClientResponse("The date must be transmitted in the format \"1970-MM-dd\"", System.currentTimeMillis());
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    private ResponseEntity<ClientResponse> handleException(HttpMessageNotReadableException e){
+        ClientResponse clientResponse = new ClientResponse("The date must be transmitted in the format \"1970-MM-dd\"", System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
 }
