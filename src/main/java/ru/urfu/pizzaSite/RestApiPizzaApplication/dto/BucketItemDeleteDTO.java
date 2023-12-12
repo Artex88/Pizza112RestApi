@@ -1,12 +1,10 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.dto;
 
 import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductVariants;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.interfaces.EnumValidator;
 
-public class CartItemDeleteDTO {
+public class BucketItemDeleteDTO {
 
     @NotNull(message = "Поле id продукта не может быть null")
     @Digits(integer = 5, fraction = 0)
@@ -15,7 +13,7 @@ public class CartItemDeleteDTO {
     @NotNull(message = "Поле варианта продукта не может быть null")
     private ProductVariants productVariant;
 
-    public CartItemDeleteDTO(){
+    public BucketItemDeleteDTO(){
 
     }
 

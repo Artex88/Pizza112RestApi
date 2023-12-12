@@ -3,8 +3,8 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "cart_item")
-public class CartItem {
+@Table(name = "bucket_item")
+public class BucketItem {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,8 +14,8 @@ public class CartItem {
     private int quantity;
 
     @ManyToOne()
-    @JoinColumn(name = "cart_id", referencedColumnName = "id")
-    private Cart cart;
+    @JoinColumn(name = "bucket_id", referencedColumnName = "id")
+    private Bucket bucket;
 
     @ManyToOne()
     @JoinColumn(name = "product_id", referencedColumnName = "id")
@@ -25,13 +25,13 @@ public class CartItem {
     @JoinColumn(name = "product_variant_id", referencedColumnName = "id")
     private ProductVariant productVariant;
 
-    public CartItem(){
+    public BucketItem(){
 
     }
 
-    public CartItem(int quantity, Cart cart, Product product, ProductVariant productVariant) {
+    public BucketItem(int quantity, Bucket bucket, Product product, ProductVariant productVariant) {
         this.quantity = quantity;
-        this.cart = cart;
+        this.bucket = bucket;
         this.product = product;
         this.productVariant = productVariant;
     }
@@ -52,12 +52,12 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    public Cart getCart() {
-        return cart;
+    public Bucket getBucket() {
+        return bucket;
     }
 
-    public void setCart(Cart cart) {
-        this.cart = cart;
+    public void setBucket(Bucket bucket) {
+        this.bucket = bucket;
     }
 
     public Product getProduct() {

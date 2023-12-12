@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -45,7 +44,7 @@ public class Product {
     private Set<ProductVariant> productVariants;
 
     @OneToMany(mappedBy = "product")
-    private Set<CartItem> cartItemSet;
+    private Set<BucketItem> bucketItemSet;
 
     public Product() {
     }
@@ -108,11 +107,11 @@ public class Product {
         this.productVariants = productVariants;
     }
 
-    public Set<CartItem> getCartItemSet() {
-        return cartItemSet;
+    public Set<BucketItem> getBucketItemSet() {
+        return bucketItemSet;
     }
 
-    public void setCartItemSet(Set<CartItem> cartItemSet) {
-        this.cartItemSet = cartItemSet;
+    public void setBucketItemSet(Set<BucketItem> bucketItemSet) {
+        this.bucketItemSet = bucketItemSet;
     }
 }

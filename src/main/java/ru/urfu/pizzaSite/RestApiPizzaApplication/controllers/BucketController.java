@@ -9,73 +9,82 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.CartItemAddDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.CartItemDeleteDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketItemAddDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketItemDeleteDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.*;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.CartItemService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.CartService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.BucketItemService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.BucketService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductVariantService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.CountException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.validators.CartItemValidator;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.validators.BucketItemValidator;
 
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/cart")
-public class CartController {
-    private final CartItemValidator cartItemValidator;
+@RequestMapping("/api/bucket")
+public class BucketController {
+    private final BucketItemValidator bucketItemValidator;
 
-    private final CartService cartService;
+    private final BucketService bucketService;
 
     private final ProductVariantService productVariantService;
 
-    private final CartItemService cartItemService;
+    private final BucketItemService bucketItemService;
 
     private final ProductService productService;
 
     private final ClientService clientService;
 
     @Autowired
-    public CartController(CartItemValidator cartItemValidator, CartService cartService, ProductVariantService productVariantService, CartItemService cartItemService, ProductService productService, ClientService clientService) {
-        this.cartItemValidator = cartItemValidator;
-        this.cartService = cartService;
+    public BucketController(BucketItemValidator bucketItemValidator, BucketService bucketService, ProductVariantService productVariantService, BucketItemService bucketItemService, ProductService productService, ClientService clientService) {
+        this.bucketItemValidator = bucketItemValidator;
+        this.bucketService = bucketService;
         this.productVariantService = productVariantService;
-        this.cartItemService = cartItemService;
+        this.bucketItemService = bucketItemService;
         this.productService = productService;
         this.clientService = clientService;
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Void> addProductToClientCart(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid CartItemAddDTO cartItemAddDTO, BindingResult bindingResult) {
+    public ResponseEntity<Void> addProductToClientBucket(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid BucketItemAddDTO bucketItemAddDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
 
-        cartItemValidator.validate(cartItemAddDTO, bindingResult);
-        Product product = productService.findById(cartItemAddDTO.getProductId());
+        bucketItemValidator.validate(bucketItemAddDTO, bindingResult);
+        Product product = productService.findById(bucketItemAddDTO.getProductId());
         Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
 
-        if (client.getCart() == null)
-            cartService.createCart(client);
-        if (product.getProductVariants().isEmpty())
-            cartItemService.updateCartItemByProduct(cartItemAddDTO, client, product);
+        if (product.getProductVariants().isEmpty()){
+            createClientBucketIfItDoesNotExist(client);
+            bucketItemService.updateBucketItemByProduct(bucketItemAddDTO, client, product);
+        }
          else {
-            ProductVariant productVariant = productVariantService.getProductVariantFromProduct(cartItemAddDTO, product);
-            cartItemService.updateCartItemByProductVariant(productVariant, cartItemAddDTO, product, client);
+            ProductVariant productVariant = productVariantService.getProductVariantFromProduct(bucketItemAddDTO, product);
+            createClientBucketIfItDoesNotExist(client);
+            bucketItemService.updateBucketItemByProductVariant(productVariant, bucketItemAddDTO, product, client);
          }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    private void createClientBucketIfItDoesNotExist(Client client) {
+        if (client.getBucket() == null)
+            bucketService.createBucket(client);
+    }
+
 
     @PostMapping("/delete")
-    public ResponseEntity<Void> deleteProductUnitFromClientCard(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody CartItemDeleteDTO cartItemDeleteDTO, BindingResult bindingResult){
+    public ResponseEntity<Void> deleteProductUnitFromClientCard(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid BucketItemDeleteDTO bucketItemDeleteDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
-        Product product = productService.findById(cartItemDeleteDTO.getProductId());
+
+        Product product = productService.findById(bucketItemDeleteDTO.getProductId());
         Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
+        if (client.getBucket() == null)
+            throw new NotFoundException("This client doesn't have active bucket");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -97,10 +106,10 @@ public class CartController {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     private ResponseEntity<ClientResponse> handleException(NotFoundException e){
         ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
-        return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(clientResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(NullPointerException.class)

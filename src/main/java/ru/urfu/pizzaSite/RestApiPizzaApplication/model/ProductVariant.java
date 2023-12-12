@@ -35,7 +35,7 @@ public class ProductVariant {
     private Product product;
 
     @OneToMany(mappedBy = "productVariant")
-    private Set<CartItem> cartItemSet;
+    private Set<BucketItem> bucketItemSet;
 
 
     public ProductVariant() {
@@ -90,12 +90,12 @@ public class ProductVariant {
         this.portionInMilliliters = portionInMilliliters;
     }
 
-    public Set<CartItem> getCartItemSet() {
-        return cartItemSet;
+    public Set<BucketItem> getBucketItemSet() {
+        return bucketItemSet;
     }
 
-    public void setCartItemSet(Set<CartItem> cartItemSet) {
-        this.cartItemSet = cartItemSet;
+    public void setBucketItemSet(Set<BucketItem> bucketItemSet) {
+        this.bucketItemSet = bucketItemSet;
     }
 }
 

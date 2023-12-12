@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
-@Table(name = "cart")
-public class Cart {
+@Table(name = "bucket")
+public class Bucket {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,17 +20,17 @@ public class Cart {
     @Column(name = "created_at")
     private LocalDateTime createdTime;
 
-    @OneToMany(mappedBy = "cart")
-    private Set<CartItem> cartItemSet;
+    @OneToMany(mappedBy = "bucket")
+    private Set<BucketItem> bucketItemSet;
 
-    public Cart(){
+    public Bucket(){
 
     }
 
-    public Cart(Client client, LocalDateTime createdTime, Set<CartItem> cartItemSet) {
+    public Bucket(Client client, LocalDateTime createdTime, Set<BucketItem> bucketItemSet) {
         this.client = client;
         this.createdTime = createdTime;
-        this.cartItemSet = cartItemSet;
+        this.bucketItemSet = bucketItemSet;
     }
 
     public int getId() {
@@ -57,11 +57,11 @@ public class Cart {
         this.createdTime = createdTime;
     }
 
-    public Set<CartItem> getCartItemSet() {
-        return cartItemSet;
+    public Set<BucketItem> getBucketItemSet() {
+        return bucketItemSet;
     }
 
-    public void setCartItemSet(Set<CartItem> cartItemSet) {
-        this.cartItemSet = cartItemSet;
+    public void setBucketItemSet(Set<BucketItem> bucketItemSet) {
+        this.bucketItemSet = bucketItemSet;
     }
 }
