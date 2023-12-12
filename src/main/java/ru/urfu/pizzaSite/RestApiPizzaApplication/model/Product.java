@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "product")
@@ -41,7 +42,10 @@ public class Product {
     private ProductType productType;
 
     @OneToMany(mappedBy = "product")
-    private List<PizzaVariant> pizzaVariants;
+    private List<ProductVariant> productVariants;
+
+    @OneToMany(mappedBy = "product")
+    private Set<CartItem> cartItemSet;
 
     public Product() {
     }
@@ -96,11 +100,19 @@ public class Product {
     }
 
 
-    public List<PizzaVariant> getPizzaVariants() {
-        return pizzaVariants;
+    public List<ProductVariant> getProductVariants() {
+        return productVariants;
     }
 
-    public void setPizzaVariants(List<PizzaVariant> pizzaVariants) {
-        this.pizzaVariants = pizzaVariants;
+    public void setProductVariants(List<ProductVariant> productVariants) {
+        this.productVariants = productVariants;
+    }
+
+    public Set<CartItem> getCartItemSet() {
+        return cartItemSet;
+    }
+
+    public void setCartItemSet(Set<CartItem> cartItemSet) {
+        this.cartItemSet = cartItemSet;
     }
 }

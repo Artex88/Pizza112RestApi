@@ -109,7 +109,7 @@ public class ShowController {
     public ResponseEntity<Object> showProduct(@RequestBody ShowProductDTO showProductDTO){
         Product product = productService.findById(showProductDTO.getId());
         if (Objects.equals(product.getProductType().getName(), ProductTypes.Pizza.name())){
-            Object pizzaVariantDTOList = product.getPizzaVariants().stream().map(pizzaVariant -> modelMapper.map(pizzaVariant, PizzaVariantDTO.class)).toList();
+            Object pizzaVariantDTOList = product.getProductVariants().stream().map(pizzaVariant -> modelMapper.map(pizzaVariant, PizzaVariantDTO.class)).toList();
             return new ResponseEntity<>(pizzaVariantDTOList,HttpStatus.OK);
         }
         return null;

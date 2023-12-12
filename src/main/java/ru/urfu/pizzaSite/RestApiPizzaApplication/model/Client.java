@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "client")
@@ -33,16 +34,11 @@ public class Client {
     @Column(name = "login_attempts")
     private int login_attempts;
 
-    public int getLogin_attempts() {
-        return login_attempts;
-    }
-
-    public void setLogin_attempts(int login_attempts) {
-        this.login_attempts = login_attempts;
-    }
-
     @OneToOne(mappedBy = "client", cascade=CascadeType.ALL)
     private ClientInfo client_info;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private Set<Cart> cartSet;
 
     public Client() {
     }
@@ -100,5 +96,21 @@ public class Client {
 
     public void setClient_info(ClientInfo client_info) {
         this.client_info = client_info;
+    }
+
+    public int getLogin_attempts() {
+        return login_attempts;
+    }
+
+    public void setLogin_attempts(int login_attempts) {
+        this.login_attempts = login_attempts;
+    }
+
+    public Set<Cart> getCartSet() {
+        return cartSet;
+    }
+
+    public void setCartSet(Set<Cart> cartSet) {
+        this.cartSet = cartSet;
     }
 }
