@@ -3,11 +3,13 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketItemAddDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketItemDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.BucketItemRepository;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class BucketItemService {
@@ -26,41 +28,46 @@ public class BucketItemService {
 
     @Transactional
     public void increaseQuantityByOneWithProductVariant(ProductVariant productVariant, Bucket bucket){
-        bucketItemRepository.updateBucketItemByQuantity(productVariant, bucket);
+        bucketItemRepository.updatePlusBucketItemByQuantity(productVariant, bucket);
     }
 
     @Transactional
-    public void increaseQuantityByOneWithoutProductVariant(Product product, Bucket bucket){
-        bucketItemRepository.updateBucketItemByQuantity(product, bucket);
+    public void decreaseQuantityByOneWithProductVariant(ProductVariant productVariant, Bucket bucket){
+        bucketItemRepository.updateMinusBucketItemByQuantity(productVariant, bucket);
     }
 
     @Transactional
-    public void addNewBucketItem(BucketItemAddDTO bucketItemAddDTO, Client client, Product product, ProductVariant productVariant) {
-        BucketItem bucketItem = new BucketItem(bucketItemAddDTO.getQuantity(), client.getBucket(), product, productVariant);
+    public void addNewBucketItem(Bucket bucket, Product product, ProductVariant productVariant) {
+        BucketItem bucketItem = new BucketItem(1, bucket, product, productVariant);
         this.save(bucketItem);
-        client.getBucket().getBucketItemSet().add(bucketItem);
+        bucket.getBucketItemSet().add(bucketItem);
     }
-
+@Transactional(readOnly = true)
     public boolean bucketItemExists(Bucket bucket, Product product, ProductVariant productVariant) {
-        return bucket.getBucketItemSet().stream().anyMatch(buketItem ->
-                Objects.equals(buketItem.getProduct(), product) &&
-                        Objects.equals(buketItem.getProductVariant(), productVariant));
+        return bucket.getBucketItemSet().stream().anyMatch(bucketItem ->
+                Objects.equals(bucketItem.getProduct(), product) &&
+                        Objects.equals(bucketItem.getProductVariant(), productVariant) && Objects.equals(bucketItem.getBucket(), bucket));
     }
-@Transactional
-    public void updateBucketItemByProductVariant(ProductVariant productVariant, BucketItemAddDTO bucketItemAddDTO, Product product, Client client) {
-        if (this.bucketItemExists(client.getBucket(), product, productVariant))
-            this.increaseQuantityByOneWithProductVariant(productVariant, client.getBucket());
-        else
-            this.addNewBucketItem(bucketItemAddDTO, client, product,productVariant);
-    }
-
     @Transactional
-    public void updateBucketItemByProduct(BucketItemAddDTO bucketItemAddDTO, Client client, Product product) {
-        if (this.bucketItemExists(client.getBucket(), product, null)){
-            this.increaseQuantityByOneWithoutProductVariant(product, client.getBucket());
-        }
+    public void updateAddIncreaseBucketItem(ProductVariant productVariant, Product product, Bucket bucket) {
+        if (this.bucketItemExists(bucket, product, productVariant))
+            this.increaseQuantityByOneWithProductVariant(productVariant, bucket);
         else
-            this.addNewBucketItem(bucketItemAddDTO, client, product,null);
+            this.addNewBucketItem(bucket, product,productVariant);
     }
-
+    @Transactional
+    public void updateDeleteOrDecreaseBucketItem(Bucket bucket, Product product, ProductVariant productVariant) {
+            Optional<BucketItem> g = bucket.getBucketItemSet().stream().filter(bucketItem -> bucketItem.getProductVariant() == productVariant && bucketItem.getProduct() == product && bucketItem.getBucket() == bucket).findFirst();
+            if (g.isEmpty())
+                throw new NotFoundException("There is no such product in the cart");
+            else {
+                BucketItem bucketItem = g.get();
+                if (bucketItem.getQuantity() == 1)
+                {
+                    bucket.getBucketItemSet().remove(bucketItem);;
+                }
+                else
+                    this.decreaseQuantityByOneWithProductVariant(productVariant, bucket);
+            }
+        }
 }

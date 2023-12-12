@@ -3,6 +3,7 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity

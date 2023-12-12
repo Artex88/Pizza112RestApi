@@ -3,6 +3,7 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -20,14 +21,14 @@ public class Bucket {
     @Column(name = "created_at")
     private LocalDateTime createdTime;
 
-    @OneToMany(mappedBy = "bucket")
+    @OneToMany(mappedBy = "bucket", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private Set<BucketItem> bucketItemSet;
 
     public Bucket(){
 
     }
 
-    public Bucket(Client client, LocalDateTime createdTime, Set<BucketItem> bucketItemSet) {
+    public Bucket(Client client, LocalDateTime createdTime, HashSet<BucketItem> bucketItemSet) {
         this.client = client;
         this.createdTime = createdTime;
         this.bucketItemSet = bucketItemSet;

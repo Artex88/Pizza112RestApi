@@ -9,8 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketItemAddDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketItemDeleteDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketItemDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.BucketItemService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.BucketService;
@@ -20,14 +19,12 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductVariantService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.CountException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.validators.BucketItemValidator;
 
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/bucket")
 public class BucketController {
-    private final BucketItemValidator bucketItemValidator;
 
     private final BucketService bucketService;
 
@@ -40,8 +37,7 @@ public class BucketController {
     private final ClientService clientService;
 
     @Autowired
-    public BucketController(BucketItemValidator bucketItemValidator, BucketService bucketService, ProductVariantService productVariantService, BucketItemService bucketItemService, ProductService productService, ClientService clientService) {
-        this.bucketItemValidator = bucketItemValidator;
+    public BucketController(BucketService bucketService, ProductVariantService productVariantService, BucketItemService bucketItemService, ProductService productService, ClientService clientService) {
         this.bucketService = bucketService;
         this.productVariantService = productVariantService;
         this.bucketItemService = bucketItemService;
@@ -50,45 +46,35 @@ public class BucketController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Void> addProductToClientBucket(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid BucketItemAddDTO bucketItemAddDTO, BindingResult bindingResult) {
+    public ResponseEntity<Void> addProductToClientBucket(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid BucketItemDTO bucketItemDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
 
-        bucketItemValidator.validate(bucketItemAddDTO, bindingResult);
-        Product product = productService.findById(bucketItemAddDTO.getProductId());
+        Product product = productService.findById(bucketItemDTO.getProductId());
         Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
 
-        if (product.getProductVariants().isEmpty()){
-            createClientBucketIfItDoesNotExist(client);
-            bucketItemService.updateBucketItemByProduct(bucketItemAddDTO, client, product);
-        }
-         else {
-            ProductVariant productVariant = productVariantService.getProductVariantFromProduct(bucketItemAddDTO, product);
-            createClientBucketIfItDoesNotExist(client);
-            bucketItemService.updateBucketItemByProductVariant(productVariant, bucketItemAddDTO, product, client);
-         }
+        ProductVariant productVariant = productVariantService.getProductVariantFromProduct(bucketItemDTO, product);
+        createClientBucketIfItDoesNotExist(client);
+        bucketItemService.updateAddIncreaseBucketItem(productVariant, product, client.getBucket());
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private void createClientBucketIfItDoesNotExist(Client client) {
-        if (client.getBucket() == null)
-            bucketService.createBucket(client);
-    }
-
-
     @PostMapping("/delete")
-    public ResponseEntity<Void> deleteProductUnitFromClientCard(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid BucketItemDeleteDTO bucketItemDeleteDTO, BindingResult bindingResult){
+    public ResponseEntity<Void> deleteProductUnitFromClientCard(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid BucketItemDTO bucketItemDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
 
-        Product product = productService.findById(bucketItemDeleteDTO.getProductId());
         Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
         if (client.getBucket() == null)
             throw new NotFoundException("This client doesn't have active bucket");
+
+        Product product = productService.findById(bucketItemDTO.getProductId());
+        ProductVariant productVariant = productVariantService.getProductVariantFromProduct(bucketItemDTO, product);
+
+        bucketItemService.updateDeleteOrDecreaseBucketItem(client.getBucket(), product, productVariant);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -124,5 +110,10 @@ public class BucketController {
     private ResponseEntity<ClientResponse> handleException(HttpMessageNotReadableException e){
         ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    private void createClientBucketIfItDoesNotExist(Client client) {
+        if (client.getBucket() == null)
+            bucketService.createBucket(client);
     }
 }
