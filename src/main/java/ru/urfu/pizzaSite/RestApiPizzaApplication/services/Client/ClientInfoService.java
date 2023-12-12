@@ -1,4 +1,4 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.services;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -123,8 +123,4 @@ public class ClientInfoService {
         clientInfoRepository.save(clientInfo);
     }
 
-    public String getPhoneNumberFromToken(String token){
-        String jwt = token.substring(7);
-        return jwtUtil.validateTokenAndRetrieveClaim(jwt);
-    }
 }

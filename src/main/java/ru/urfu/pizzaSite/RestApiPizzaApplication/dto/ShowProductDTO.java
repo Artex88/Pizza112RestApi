@@ -6,17 +6,17 @@ import jakarta.validation.constraints.NotNull;
 public class ShowProductDTO {
     @NotNull
     @NotEmpty(message = "id товара не может быть пустым")
-    private int id;
+    private int productId;
 
     public ShowProductDTO(){
 
     }
 
-    public int getId() {
-        return id;
+    public int getProductId() {
+        return productId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setProductId(int productId) {
+        this.productId = productId;
     }
 }

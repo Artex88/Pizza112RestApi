@@ -21,8 +21,19 @@ public class CartItem {
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
 
+    @ManyToOne()
+    @JoinColumn(name = "product_variant_id", referencedColumnName = "id")
+    private ProductVariant productVariant;
+
     public CartItem(){
 
+    }
+
+    public CartItem(int quantity, Cart cart, Product product, ProductVariant productVariant) {
+        this.quantity = quantity;
+        this.cart = cart;
+        this.product = product;
+        this.productVariant = productVariant;
     }
 
     public int getId() {
@@ -55,5 +66,13 @@ public class CartItem {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public ProductVariant getProductVariant() {
+        return productVariant;
+    }
+
+    public void setProductVariant(ProductVariant productVariant) {
+        this.productVariant = productVariant;
     }
 }

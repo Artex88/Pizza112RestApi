@@ -21,14 +21,12 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowProductDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ProductType;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.SortException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.validators.ShowDTOValidator;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.CountException;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ShowDTOValidationException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
 
 
 import java.util.List;
@@ -98,7 +96,7 @@ public class ShowController {
     )
     public ResponseEntity<List<ProductDTO>> showProducts(@RequestBody ShowDTO showDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors())
-            throw new ShowDTOValidationException(bindingResult);
+            throw new ValidationException(bindingResult);
         showDTOValidator.validate(showDTO,bindingResult);
         Pageable pageable = productService.getPageable(showDTO);
         List<ProductDTO> productList =  productService.findAllCertainProductsAndDisplayCertainCount(showDTO.getFrom(), pageable).stream().map(this::convertToProductDTO).toList();
@@ -107,7 +105,7 @@ public class ShowController {
 
     @PostMapping("/product")
     public ResponseEntity<Object> showProduct(@RequestBody ShowProductDTO showProductDTO){
-        Product product = productService.findById(showProductDTO.getId());
+        Product product = productService.findById(showProductDTO.getProductId());
         if (Objects.equals(product.getProductType().getName(), ProductTypes.Pizza.name())){
             Object pizzaVariantDTOList = product.getProductVariants().stream().map(pizzaVariant -> modelMapper.map(pizzaVariant, PizzaVariantDTO.class)).toList();
             return new ResponseEntity<>(pizzaVariantDTOList,HttpStatus.OK);
@@ -118,9 +116,9 @@ public class ShowController {
         return this.modelMapper.map(product, ProductDTO.class);
     }
 
-    @ExceptionHandler(ShowDTOValidationException.class)
+    @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<Void> handleException(ShowDTOValidationException e){
+    private ResponseEntity<Void> handleException(ValidationException e){
         String k = e.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("; "));
         //ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

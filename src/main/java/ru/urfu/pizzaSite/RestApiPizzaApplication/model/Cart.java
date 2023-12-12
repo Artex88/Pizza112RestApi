@@ -13,21 +13,24 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne()
+    @OneToOne()
     @JoinColumn(name = "client_id", referencedColumnName = "id")
     private Client client;
 
     @Column(name = "created_at")
     private LocalDateTime createdTime;
 
-    @Column(name = "status")
-    private String status;
-
     @OneToMany(mappedBy = "cart")
     private Set<CartItem> cartItemSet;
 
     public Cart(){
 
+    }
+
+    public Cart(Client client, LocalDateTime createdTime, Set<CartItem> cartItemSet) {
+        this.client = client;
+        this.createdTime = createdTime;
+        this.cartItemSet = cartItemSet;
     }
 
     public int getId() {
@@ -54,11 +57,11 @@ public class Cart {
         this.createdTime = createdTime;
     }
 
-    public String getStatus() {
-        return status;
+    public Set<CartItem> getCartItemSet() {
+        return cartItemSet;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setCartItemSet(Set<CartItem> cartItemSet) {
+        this.cartItemSet = cartItemSet;
     }
 }

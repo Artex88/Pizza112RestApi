@@ -7,9 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,15 +20,14 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientInfoDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientInfoService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientInfoService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ClientValidationException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/client")
@@ -80,7 +77,7 @@ public class ClientController {
     public ResponseEntity<ClientResponse> updatePP(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid ClientInfoDTO clientInfoDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors())
             throw new ClientValidationException(bindingResult);
-        String phoneNumber = clientInfoService.getPhoneNumberFromToken(token);
+        String phoneNumber = clientService.getPhoneNumberFromToken(token);
         Client client = clientService.findByPhoneNumber(phoneNumber);
 
         clientService.save(clientInfoService.updateClientInfo(client, clientInfoDTO));
@@ -110,7 +107,7 @@ public class ClientController {
     })
     public ResponseEntity<Void> updatePPAvatar(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestHeader(HttpHeaders.CONTENT_TYPE) String contentType, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         if (contentType != null && contentType.startsWith("multipart/form-data")){
-            String phoneNumber = clientInfoService.getPhoneNumberFromToken(token);
+            String phoneNumber = clientService.getPhoneNumberFromToken(token);
             ClientInfo clientInfo = clientInfoService.findByPhoneNumber(phoneNumber);
             clientInfoService.updateAvatar(clientInfo, multipartFile);
             return new ResponseEntity<>(HttpStatus.OK);
@@ -145,7 +142,7 @@ public class ClientController {
     })
 
     public Map<String, String> showPP(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
-        String phoneNumber = clientInfoService.getPhoneNumberFromToken(token);
+        String phoneNumber = clientService.getPhoneNumberFromToken(token);
         ClientInfo clientInfo = clientInfoService.findByPhoneNumber(phoneNumber);
 
         return clientInfoService.fillClientInfoJSON(clientInfo);

@@ -3,6 +3,8 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "product_variant")
 public class ProductVariant {
@@ -28,10 +30,13 @@ public class ProductVariant {
     @Column(name = "portion_in_milliliters")
     private double portionInMilliliters;
 
-
     @ManyToOne()
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
+
+    @OneToMany(mappedBy = "productVariant")
+    private Set<CartItem> cartItemSet;
+
 
     public ProductVariant() {
     }
@@ -83,6 +88,14 @@ public class ProductVariant {
 
     public void setPortionInMilliliters(double portionInMilliliters) {
         this.portionInMilliliters = portionInMilliliters;
+    }
+
+    public Set<CartItem> getCartItemSet() {
+        return cartItemSet;
+    }
+
+    public void setCartItemSet(Set<CartItem> cartItemSet) {
+        this.cartItemSet = cartItemSet;
     }
 }
 

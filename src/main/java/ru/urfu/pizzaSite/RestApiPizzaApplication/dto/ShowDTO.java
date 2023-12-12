@@ -8,15 +8,15 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.interfaces.EnumValidator;
 @Schema(description = "Сущность, которую необходимо передавать, чтобы получить из БД какой-то тип продуктов в определенном количестве")
 public class ShowDTO {
-    @NotNull(message = "Поле типа товара не может быть null")
-    @NotEmpty(message = "Поле типа товара не может быть пустым")
+    @NotNull(message = "Поле типа продукта не может быть null")
+    @NotEmpty(message = "Поле типа продукта не может быть пустым")
     @Size(max = 64, message = "Название типа продукта может быть максимум 64 символа")
-    @EnumValidator(enumClazz = ProductTypes.class, message = "Неправильно указан тип товара")
+    @EnumValidator(enumClazz = ProductTypes.class, message = "Неправильно указан тип продукта")
     @Schema(description = "поле названия типа продукта. Можно передавать только те названия, которые есть в Enum ProductTypes",  enumAsRef = true)
     private ProductTypes from;
     @NotNull
     @NotEmpty
-    @Digits(integer = 2, fraction = 0, message = "Максимальное количество товаров, предоставляемых за один запрос - 15")
+    @Digits(integer = 2, fraction = 0, message = "Максимальное количество продуктов, предоставляемых за один запрос - 15")
     @Schema(description = "поле для указание количества продукта")
     private int count;
     @Size(max = 32, message = "Слишком большая строка")

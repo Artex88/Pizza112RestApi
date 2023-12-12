@@ -42,7 +42,7 @@ public class Product {
     private ProductType productType;
 
     @OneToMany(mappedBy = "product")
-    private List<ProductVariant> productVariants;
+    private Set<ProductVariant> productVariants;
 
     @OneToMany(mappedBy = "product")
     private Set<CartItem> cartItemSet;
@@ -100,11 +100,11 @@ public class Product {
     }
 
 
-    public List<ProductVariant> getProductVariants() {
+    public Set<ProductVariant> getProductVariants() {
         return productVariants;
     }
 
-    public void setProductVariants(List<ProductVariant> productVariants) {
+    public void setProductVariants(Set<ProductVariant> productVariants) {
         this.productVariants = productVariants;
     }
 

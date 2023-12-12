@@ -37,8 +37,8 @@ public class Client {
     @OneToOne(mappedBy = "client", cascade=CascadeType.ALL)
     private ClientInfo client_info;
 
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
-    private Set<Cart> cartSet;
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    private Cart cart;
 
     public Client() {
     }
@@ -106,11 +106,11 @@ public class Client {
         this.login_attempts = login_attempts;
     }
 
-    public Set<Cart> getCartSet() {
-        return cartSet;
+    public Cart getCart() {
+        return cart;
     }
 
-    public void setCartSet(Set<Cart> cartSet) {
-        this.cartSet = cartSet;
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 }
