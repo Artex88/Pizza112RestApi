@@ -2,7 +2,6 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketItemDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ProductVariant;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ProductVariantRepository;
@@ -26,8 +25,8 @@ public class ProductVariantService {
         productVariantRepository.save(productVariant);
     }
 
-    public ProductVariant getProductVariantFromProduct(BucketItemDTO bucketItemDTO, Product product) {
-        return getProductVariant(product, bucketItemDTO.getProductVariant());
+    public ProductVariant getProductVariantFromProduct(ProductVariants productVariant, Product product) {
+        return getProductVariant(product, productVariant);
     }
 
 

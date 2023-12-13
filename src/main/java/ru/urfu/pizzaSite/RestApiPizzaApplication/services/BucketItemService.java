@@ -3,7 +3,6 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketItemDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.BucketItemRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
@@ -27,8 +26,8 @@ public class BucketItemService {
     }
 
     @Transactional
-    public void increaseQuantityByOneWithProductVariant(ProductVariant productVariant, Bucket bucket){
-        bucketItemRepository.updatePlusBucketItemByQuantity(productVariant, bucket);
+    public void increaseQuantityWithProductVariant(ProductVariant productVariant, Bucket bucket, int quantity){
+        bucketItemRepository.updatePlusBucketItemByQuantity(productVariant, bucket, quantity);
     }
 
     @Transactional
@@ -37,8 +36,8 @@ public class BucketItemService {
     }
 
     @Transactional
-    public void addNewBucketItem(Bucket bucket, Product product, ProductVariant productVariant) {
-        BucketItem bucketItem = new BucketItem(1, bucket, product, productVariant);
+    public void addNewBucketItem(Bucket bucket, Product product, ProductVariant productVariant, int quantity) {
+        BucketItem bucketItem = new BucketItem(quantity, bucket, product, productVariant);
         this.save(bucketItem);
         bucket.getBucketItemSet().add(bucketItem);
     }
@@ -49,11 +48,11 @@ public class BucketItemService {
                         Objects.equals(bucketItem.getProductVariant(), productVariant) && Objects.equals(bucketItem.getBucket(), bucket));
     }
     @Transactional
-    public void updateAddIncreaseBucketItem(ProductVariant productVariant, Product product, Bucket bucket) {
+    public void updateAddIncreaseBucketItem(ProductVariant productVariant, Product product, Bucket bucket, int quantity) {
         if (this.bucketItemExists(bucket, product, productVariant))
-            this.increaseQuantityByOneWithProductVariant(productVariant, bucket);
+            this.increaseQuantityWithProductVariant(productVariant, bucket, quantity);
         else
-            this.addNewBucketItem(bucket, product,productVariant);
+            this.addNewBucketItem(bucket, product,productVariant, quantity);
     }
     @Transactional
     public void updateDeleteOrDecreaseBucketItem(Bucket bucket, Product product, ProductVariant productVariant) {
