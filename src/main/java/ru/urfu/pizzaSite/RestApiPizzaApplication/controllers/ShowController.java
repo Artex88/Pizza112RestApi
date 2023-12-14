@@ -18,10 +18,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.PizzaVariantDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ProductDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowProductDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductService;
@@ -56,7 +53,7 @@ public class ShowController {
     }
 
     @PostMapping()
-    @Operation(summary = "Получение определеного типа товара в определенном количестве + есть сортировка по полям товара (смотреть в ProductDTO.class, какие поля есть)")
+    @Operation(summary = "Получение определеного типа товара в определенном количестве + есть сортировка по полям товара (смотреть в ProductDTO.class, какие поля есть)(используется ShowDTO)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на получение 2 товаров типа 'Pizza' без сортировки", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "пример ответа",
@@ -108,7 +105,7 @@ public class ShowController {
     }
 
     @PostMapping("/product")
-    @Operation(summary = "Получение всех вариантов конкретного товара")
+    @Operation(summary = "Получение всех вариантов конкретного товара(используется ShowProductDTO)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример на получения всех вариантов мясной пиццы", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "пример запроса",
@@ -177,6 +174,12 @@ public class ShowController {
                     .stream()
                     .map(pizzaVariant -> modelMapper.map(pizzaVariant, PizzaVariantDTO.class)).peek(pizzaVariantDTO -> pizzaVariantDTO.setImage(product.getImageName())).toList();
             return new ResponseEntity<>(pizzaVariantDTOList,HttpStatus.OK);
+        }
+        else if (Objects.equals(product.getProductType().getName(), ProductTypes.Snak.name())) {
+            Object baseProductDTO = product.getProductVariants()
+                    .stream()
+                    .map(baseProductVariant -> modelMapper.map(baseProductVariant, BaseProductDTO.class)).peek(baseProductVariant -> baseProductVariant.setImage(product.getImageName())).toList();
+            return new ResponseEntity<>(baseProductDTO,HttpStatus.OK);
         }
         return null;
     }

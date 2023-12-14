@@ -55,7 +55,7 @@ public class BucketController {
     }
 
     @PostMapping("/add")
-    @Operation(summary = "Добавление n-ого кол-ва определенного продукта в корзину пользователя(нужна авторизация)")
+    @Operation(summary = "Добавление n-ого кол-ва определенного продукта в корзину пользователя(нужна авторизация)(используется BucketItemAddDTO)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на добавление продукта", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "пример запроса",
@@ -96,7 +96,7 @@ public class BucketController {
     }
 
     @PostMapping("/delete")
-    @Operation(summary = "Удаление одной единицы продукта из корзины пользователя(нужна авторизация)")
+    @Operation(summary = "Удаление одной единицы продукта из корзины пользователя(нужна авторизация)(используется BucketItemDeleteDTO)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на удаление 1 единицы продукта или всего, если осталась 1 единица", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "пример запроса",
@@ -129,7 +129,7 @@ public class BucketController {
     }
 
     @PostMapping("/reset")
-    @Operation(summary = "Удаление всего продукта из корзины пользователя(нужна авторизация)")
+    @Operation(summary = "Удаление всего продукта из корзины пользователя(нужна авторизация)(используется BucketItemDeleteDTO)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на полное удаление, независимо от его количества продукта", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "пример запроса",

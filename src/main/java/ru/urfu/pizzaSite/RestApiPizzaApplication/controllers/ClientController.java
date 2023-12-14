@@ -51,7 +51,7 @@ public class ClientController {
 
     @PostMapping("/updatePP")
     //TODO ПОФИКСИТЬ БАГ СО СМЕНОЙ НОМЕРА ТЕЛЕФОНА
-    @Operation(summary = "Обновление всех переданных текстовых полей клиента, кроме аватара. Для идентификации пользователя необходимо передавать в headers jwt-token (в хедере Authorization)")
+    @Operation(summary = "Обновление всех переданных текстовых полей клиента, кроме аватара. Для идентификации пользователя необходимо передавать в headers jwt-token (в хедере Authorization)(используется ClientInfoDTO)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на обновление некоторых полей пользователя", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "Пример запроса обновление полей",

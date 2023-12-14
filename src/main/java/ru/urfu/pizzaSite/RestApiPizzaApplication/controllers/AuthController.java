@@ -72,7 +72,7 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
     @PostMapping("/sms_authentications")
-    @Operation(summary = "Отправка сообщения с одноразовым кодом на номер телефона")
+    @Operation(summary = "Отправка сообщения с одноразовым кодом на номер телефона(используется ClientDTO)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на отправку сообщения с кодом для спец. номера +79999999999", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "Пример запроса на спец номер +79999999999",
@@ -110,7 +110,7 @@ public class AuthController {
 
 
     @PostMapping("/sms_check")
-    @Operation(summary = "Получение номера телефона и кода. Если всё верно, возвращает jwt токен. Для номера телефона 79999999999 существует постояный код 111111.")
+    @Operation(summary = "Получение номера телефона и кода. Если всё верно, возвращает jwt токен. Для номера телефона 79999999999 существует постояный код 111111(используется AuthenticationDTO).")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на авторизацию для спец. номера +79999999999", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "Пример запроса авторизации на спец номер +79999999999",
@@ -159,7 +159,7 @@ public class AuthController {
 
     @PostMapping("/sms_check/resend")
     @Operation(summary = "Повторная отпрвка сообщения с одноразовым кодом на номер телефона")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на повторную отправку кода для спец. номера +79999999999", content = {
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на повторную отправку кода для спец. номера +79999999999(используется ClientDTO).", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "Пример запроса на повт. отправку кода на спец номер +79999999999",
                     value = "{\"phoneNumber\": 79999999999}"
