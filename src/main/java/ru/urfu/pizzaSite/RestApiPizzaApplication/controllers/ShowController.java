@@ -17,10 +17,9 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.PizzaVariantDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowProductDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.PizzaVariantDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ProductDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductService;
@@ -54,7 +53,7 @@ public class ShowController {
     }
 
     @PostMapping()
-    @Operation(summary = "Получение всех полей клиента(как получить изображение аватар из imageName читать подробнее в ClientInfoDTO). Для идентификации пользователя необходимо передавать в headers jwt-token (в хедере Authorization)")
+    @Operation(summary = "Получение определеного типа товара в определенном количестве + есть сортировка по полям товара (смотреть в ProductDTO.class, какие поля есть)") //todo
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на получение 2 товаров типа 'Pizza' без сортировки", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "пример ответа",
@@ -106,10 +105,13 @@ public class ShowController {
     }
 
     @PostMapping("/product")
-    public ResponseEntity<Object> showProduct(@RequestBody @Valid ShowProductDTO showProductDTO){
-        Product product = productService.findById(showProductDTO.getProductId());
+    public ResponseEntity<Object> showProduct(@RequestParam("id") int id){
+        Product product = productService.findById(id);
         if (Objects.equals(product.getProductType().getName(), ProductTypes.Pizza.name())){
-            Object pizzaVariantDTOList = product.getProductVariants().stream().map(pizzaVariant -> modelMapper.map(pizzaVariant, PizzaVariantDTO.class)).toList();
+            // TODO СДЕЛАТЬ ЧТОБЫ ВОЗВРАЩАЛО КАРТИНКУ
+            Object pizzaVariantDTOList = product.getProductVariants()
+                    .stream()
+                    .map(pizzaVariant -> modelMapper.map(pizzaVariant, PizzaVariantDTO.class)).peek(pizzaVariantDTO -> pizzaVariantDTO.setImage(product.getImageName())).toList();
             return new ResponseEntity<>(pizzaVariantDTOList,HttpStatus.OK);
         }
         return null;

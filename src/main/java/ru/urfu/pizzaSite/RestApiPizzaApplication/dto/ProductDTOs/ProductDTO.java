@@ -1,4 +1,4 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.dto;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;

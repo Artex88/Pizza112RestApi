@@ -19,8 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.api.SMSApi;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.AuthenticationDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.AuthenticationDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ClientDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
@@ -51,7 +51,6 @@ public class AuthController {
     private final ClientService clientService;
 
     private final ClientInfoService clientInfoService;
-    private final SMSApi smsApi;
 
     private final TOTPGenerator TOTPGenerator;
 
@@ -68,7 +67,6 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
         this.clientService = clientService;
         this.clientInfoService = clientInfoService;
-        this.smsApi = smsApi;
         this.TOTPGenerator = TOTPGenerator;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;

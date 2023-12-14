@@ -17,7 +17,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientInfoDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ClientInfoDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
@@ -125,7 +125,6 @@ public class ClientController {
                     @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                             summary = "Пример ответа, где передаются все поля клиента",
                             value = """
-                                    {   "patronymic": "Петрович",
                                         "phoneNumber": "79999999999",
                                         "surname": "Ивааанов",
                                         "name": "Петр",

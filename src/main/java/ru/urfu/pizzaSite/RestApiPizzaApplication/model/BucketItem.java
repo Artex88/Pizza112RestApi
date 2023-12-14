@@ -25,6 +25,13 @@ public class BucketItem {
     @JoinColumn(name = "product_variant_id", referencedColumnName = "id")
     private ProductVariant productVariant;
 
+    @Transient
+    private Double itemPrice;
+
+    public Double getItemPrice() {
+        return quantity * productVariant.getProductVariantPrice();
+    }
+
     public BucketItem(){
 
     }

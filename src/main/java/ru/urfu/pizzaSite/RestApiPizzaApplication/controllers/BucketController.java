@@ -9,8 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketItemAddDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketItemDeleteDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs.BucketItemAddDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs.BucketItemDeleteDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs.BucketShowItemDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.BucketItemService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.BucketService;
@@ -21,6 +22,10 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.CountException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -63,6 +68,39 @@ public class BucketController {
 
     @PostMapping("/delete")
     public ResponseEntity<Void> deleteProductUnitFromClientCard(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid BucketItemDeleteDTO bucketItemDeleteDTO, BindingResult bindingResult) {
+        handleBucketItemDeleteRequests(token, bucketItemDeleteDTO, bindingResult, (client, product, productVariant) ->
+                bucketItemService.updateDeleteOrDecreaseBucketItem(client.getBucket(), product, productVariant)
+        );
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/reset")
+    public ResponseEntity<Void> resetProductUnitFromClientCard(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid BucketItemDeleteDTO bucketItemDeleteDTO, BindingResult bindingResult){
+        handleBucketItemDeleteRequests(token, bucketItemDeleteDTO, bindingResult, (client, product, productVariant) ->
+                bucketItemService.resetBucketItem(client.getBucket(), product, productVariant)
+        );
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/showBucket")
+    public ResponseEntity<List<BucketShowItemDTO>> showClientBucketProducts(@RequestHeader(HttpHeaders.AUTHORIZATION) String token)   {
+          Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
+          Bucket bucket = client.getBucket();
+        List<BucketShowItemDTO> showItemDTOSet = bucket.getBucketItemSet().stream()
+                .map(bucketItem -> new BucketShowItemDTO(
+                        bucketItem.getProduct().getProductName(),
+                        bucketItem.getProductVariant().getProductVariantName(),
+                        bucketItem.getQuantity(),
+                        bucketItem.getProductVariant().getProductVariantPrice(),
+                        bucketItem.getItemPrice(),
+                        bucketItem.getProduct().getImageName()
+                ))
+                .collect(Collectors.toList());
+
+          return new ResponseEntity<>(showItemDTOSet, HttpStatus.OK);
+    }
+
+    private void handleBucketItemDeleteRequests(String token, BucketItemDeleteDTO bucketItemDeleteDTO, BindingResult bindingResult, BucketItemAction bucketItemAction ){
         if (bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
 
@@ -72,9 +110,12 @@ public class BucketController {
 
         Product product = productService.findById(bucketItemDeleteDTO.getProductId());
         ProductVariant productVariant = productVariantService.getProductVariantFromProduct(bucketItemDeleteDTO.getProductVariant(), product);
+        bucketItemAction.perform(client, product, productVariant);
+    }
 
-        bucketItemService.updateDeleteOrDecreaseBucketItem(client.getBucket(), product, productVariant);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @FunctionalInterface
+    private interface BucketItemAction {
+        void perform(Client client, Product product, ProductVariant productVariant);
     }
 
     @ExceptionHandler(ValidationException.class)

@@ -41,11 +41,18 @@ public class BucketItemService {
         this.save(bucketItem);
         bucket.getBucketItemSet().add(bucketItem);
     }
-@Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public boolean bucketItemExists(Bucket bucket, Product product, ProductVariant productVariant) {
         return bucket.getBucketItemSet().stream().anyMatch(bucketItem ->
                 Objects.equals(bucketItem.getProduct(), product) &&
                         Objects.equals(bucketItem.getProductVariant(), productVariant) && Objects.equals(bucketItem.getBucket(), bucket));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<BucketItem> getCertainBucketItem(Bucket bucket, Product product, ProductVariant productVariant) {
+        return bucket.getBucketItemSet().stream().filter(bucketItem ->
+                Objects.equals(bucketItem.getProduct(), product) &&
+                        Objects.equals(bucketItem.getProductVariant(), productVariant) && Objects.equals(bucketItem.getBucket(), bucket)).findFirst();
     }
     @Transactional
     public void updateAddIncreaseBucketItem(ProductVariant productVariant, Product product, Bucket bucket, int quantity) {
@@ -56,17 +63,25 @@ public class BucketItemService {
     }
     @Transactional
     public void updateDeleteOrDecreaseBucketItem(Bucket bucket, Product product, ProductVariant productVariant) {
-            Optional<BucketItem> g = bucket.getBucketItemSet().stream().filter(bucketItem -> bucketItem.getProductVariant() == productVariant && bucketItem.getProduct() == product && bucketItem.getBucket() == bucket).findFirst();
-            if (g.isEmpty())
-                throw new NotFoundException("There is no such product in the cart");
-            else {
-                BucketItem bucketItem = g.get();
-                if (bucketItem.getQuantity() == 1)
-                {
-                    bucket.getBucketItemSet().remove(bucketItem);;
-                }
-                else
-                    this.decreaseQuantityByOneWithProductVariant(productVariant, bucket);
-            }
+        Optional<BucketItem> bucketItemOptional = bucket.getBucketItemSet().stream().filter(bucketItem -> bucketItem.getProductVariant() == productVariant && bucketItem.getProduct() == product && bucketItem.getBucket() == bucket).findFirst();
+        if (bucketItemOptional.isEmpty())
+            throw new NotFoundException("There is no such product in the cart");
+        else {
+            BucketItem bucketItem = bucketItemOptional.get();
+            if (bucketItem.getQuantity() == 1)
+                bucket.getBucketItemSet().remove(bucketItem);
+            else
+                this.decreaseQuantityByOneWithProductVariant(productVariant, bucket);
         }
+    }
+    @Transactional
+    public void resetBucketItem(Bucket bucket, Product product, ProductVariant productVariant){
+        Optional<BucketItem> bucketItemOptional = bucket.getBucketItemSet().stream().filter(bucketItem -> bucketItem.getProductVariant() == productVariant && bucketItem.getProduct() == product && bucketItem.getBucket() == bucket).findFirst();
+        if (bucketItemOptional.isEmpty())
+            throw new NotFoundException("There is no such product in the cart");
+        else {
+            BucketItem bucketItem = bucketItemOptional.get();
+            bucket.getBucketItemSet().remove(bucketItem);
+        }
+    }
 }

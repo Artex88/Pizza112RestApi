@@ -1,13 +1,11 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.dto;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.Date;
+
 @Schema(description = "Сущность для получения/обновления текстовых полей в ЛК пользователя. " +
         "В imageName приходит id.расширение картинки, которую можно открыть по пути serverDomain/images/Avatars/default.webp(ну или id.расширение, например 32.webp) (default.webp - дефолтный аватар пользователя)")
 public class ClientInfoDTO {
@@ -29,11 +27,6 @@ public class ClientInfoDTO {
     @Schema(description = "поле фамилии пользователя")
     private String surname;
 
-    @Column(name = "patronymic")
-    @Size(max = 32, message = "Отчество может быть максимум 32 символа")
-    @Pattern(regexp = "^[^0-9]*$", message = "В отчестве не должно быть цифр")
-    @Schema(description = "поле фамилии пользователя")
-    private String patronymic;
     @Schema(description = "Поле, где хранится идентификатор аватара пользователя, доступный по ссылке serverDomain/images/Avatars/идентификатор ")
     private String imageName;
 
@@ -63,14 +56,6 @@ public class ClientInfoDTO {
 
     public void setSurname(String surname) {
         this.surname = surname;
-    }
-
-    public String getPatronymic() {
-        return patronymic;
-    }
-
-    public void setPatronymic(String patronymic) {
-        this.patronymic = patronymic;
     }
 
     public LocalDate getDateOfBirth() {

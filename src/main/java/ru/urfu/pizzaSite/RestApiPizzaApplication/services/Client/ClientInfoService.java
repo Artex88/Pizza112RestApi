@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientInfoDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ClientInfoDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientInfoRepository;
@@ -103,7 +103,6 @@ public class ClientInfoService {
         Map<String,String> json = new HashMap<>();
         json.put("name", clientInfo.getName());
         json.put("surname", clientInfo.getSurname());
-        json.put("patronymic", clientInfo.getPatronymic());
         json.put("phoneNumber", clientInfo.getPhoneNumber());
         json.put("imageName", clientInfo.getImageName());
         if (clientInfo.getDateOfBirth() == null)

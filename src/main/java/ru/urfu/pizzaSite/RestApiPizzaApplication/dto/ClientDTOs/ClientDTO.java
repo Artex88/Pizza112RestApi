@@ -1,11 +1,10 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.dto;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.springframework.data.repository.query.Param;
 
 @Schema(description = "Сущность, которую нужно передать для отправки сообщения")
 public class ClientDTO {

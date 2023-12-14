@@ -1,4 +1,4 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.dto;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotEmpty;
@@ -19,6 +19,8 @@ public class PizzaVariantDTO {
     @Column(name = "weight")
     @NotNull(message = "Вес пиццы не может быть null")
     private Double weight;
+    @Column(name = "image_name")
+    private String image;
 
     public PizzaVariantDTO() {
 
@@ -46,5 +48,13 @@ public class PizzaVariantDTO {
 
     public void setWeight(Double weight) {
         this.weight = weight;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }
