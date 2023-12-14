@@ -7,8 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.PizzaVariantDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ProductRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
@@ -41,7 +40,7 @@ public class ProductService {
     public Product findById(int id){
         Optional<Product> productOptional= productRepository.findById(id);
         if (productOptional.isEmpty())
-            throw new NotFoundException("There are not this product");
+            throw new NotFoundException("Product with this id does not exist");
         return productOptional.get();
     }
 

@@ -1,4 +1,4 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.services;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientInfoDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ClientInfoDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientInfoRepository;
@@ -72,12 +72,12 @@ public class ClientInfoService {
 
     private String validateImageAndGetContentType(MultipartFile imageFile){
         if (imageFile.isEmpty() || imageFile.getSize() == 0)
-            throw new ImageSaveException();
+            throw new ImageSaveException("Empty image");
         String contentType = imageFile.getContentType();
         if (contentType == null || !ALLOWED_IMAGE_TYPES.contains(contentType))
-            throw new ImageSaveException();
+            throw new ImageSaveException("Error content type");
         if (imageFile.getSize() > MAX_IMAGE_SIZE)
-            throw new ImageSaveException();
+            throw new ImageSaveException("Too big image");
         return contentType.substring(6);
     }
     private String[] getNullPropertyNames(Object source) {
@@ -103,7 +103,6 @@ public class ClientInfoService {
         Map<String,String> json = new HashMap<>();
         json.put("name", clientInfo.getName());
         json.put("surname", clientInfo.getSurname());
-        json.put("patronymic", clientInfo.getPatronymic());
         json.put("phoneNumber", clientInfo.getPhoneNumber());
         json.put("imageName", clientInfo.getImageName());
         if (clientInfo.getDateOfBirth() == null)
@@ -123,8 +122,4 @@ public class ClientInfoService {
         clientInfoRepository.save(clientInfo);
     }
 
-    public String getPhoneNumberFromToken(String token){
-        String jwt = token.substring(7);
-        return jwtUtil.validateTokenAndRetrieveClaim(jwt);
-    }
 }

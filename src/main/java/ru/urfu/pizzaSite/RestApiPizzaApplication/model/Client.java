@@ -33,16 +33,11 @@ public class Client {
     @Column(name = "login_attempts")
     private int login_attempts;
 
-    public int getLogin_attempts() {
-        return login_attempts;
-    }
-
-    public void setLogin_attempts(int login_attempts) {
-        this.login_attempts = login_attempts;
-    }
-
     @OneToOne(mappedBy = "client", cascade=CascadeType.ALL)
     private ClientInfo client_info;
+
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
+    private Bucket bucket;
 
     public Client() {
     }
@@ -100,5 +95,21 @@ public class Client {
 
     public void setClient_info(ClientInfo client_info) {
         this.client_info = client_info;
+    }
+
+    public int getLogin_attempts() {
+        return login_attempts;
+    }
+
+    public void setLogin_attempts(int login_attempts) {
+        this.login_attempts = login_attempts;
+    }
+
+    public Bucket getBucket() {
+        return bucket;
+    }
+
+    public void setBucket(Bucket bucket) {
+        this.bucket = bucket;
     }
 }

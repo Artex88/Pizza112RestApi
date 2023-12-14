@@ -19,19 +19,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.api.SMSApi;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.AuthenticationDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.AuthenticationDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ClientDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.LongGenerator;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.TOTPGenerator;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ClientInfoService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.RegistrationService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientInfoService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.RegistrationService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.AuthorizationAttemptsExhaustedException;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ClientValidationException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.TooManyRequestException;
 
 
@@ -51,7 +51,6 @@ public class AuthController {
     private final ClientService clientService;
 
     private final ClientInfoService clientInfoService;
-    private final SMSApi smsApi;
 
     private final TOTPGenerator TOTPGenerator;
 
@@ -68,7 +67,6 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
         this.clientService = clientService;
         this.clientInfoService = clientInfoService;
-        this.smsApi = smsApi;
         this.TOTPGenerator = TOTPGenerator;
         this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
@@ -104,7 +102,7 @@ public class AuthController {
     )
     public ResponseEntity<ClientResponse> performRegistration(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона") ClientDTO clientDTO, BindingResult bindingResult) throws InvalidKeyException {
             if (bindingResult.hasErrors())
-                throw new ClientValidationException(bindingResult);
+                throw new ValidationException(bindingResult);
 
             clientService.sendRegistrationMessage(clientDTO.getPhoneNumber(), TOTPGenerator.generatePassword(longGenerator.generateLong()));
             return new ResponseEntity<>(new ClientResponse("Message send", System.currentTimeMillis()), HttpStatus.OK);
@@ -142,7 +140,7 @@ public class AuthController {
     )
     public Map<String, String> performLogin(@RequestBody @Valid @Parameter(description = "Сущность клиента, содержащая номер телефона и одноразовый код") AuthenticationDTO authenticationDTO , BindingResult bindingResult) throws InvalidKeyException {
         if (bindingResult.hasErrors())
-            throw new ClientValidationException(bindingResult);
+            throw new ValidationException(bindingResult);
 
         Client client = clientService.findByPhoneNumber(authenticationDTO.getPhoneNumber());
         clientService.validateLoginRequest(client, passwordEncoder.encode(TOTPGenerator.generatePassword(longGenerator.generateLong())));
@@ -212,9 +210,9 @@ public class AuthController {
         ClientResponse clientResponse = new ClientResponse("Incorrect code or login", System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
-    @ExceptionHandler(ClientValidationException.class)
+    @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<ClientResponse> handleException(ClientValidationException e){
+    private ResponseEntity<ClientResponse> handleException(ValidationException e){
         String k = e.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("; "));
         ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);

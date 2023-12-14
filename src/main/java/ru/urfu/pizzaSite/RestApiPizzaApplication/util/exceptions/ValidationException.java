@@ -1,12 +1,11 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions;
 
-
 import org.springframework.validation.BindingResult;
 
-public class ClientValidationException extends RuntimeException{
+public class ValidationException extends RuntimeException {
     private final BindingResult bindingResult;
 
-    public ClientValidationException(BindingResult bindingResult){
+    public ValidationException(BindingResult bindingResult){
         this.bindingResult = bindingResult;
     }
 

@@ -7,10 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.controllers.ShowController;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ProductDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowDTO;
 
 import java.util.List;
 

@@ -29,11 +29,6 @@ public class ClientInfo {
     @Pattern(regexp = "^[^0-9]*$", message = "В фамилии не должно быть цифр")
     private String surname;
 
-    @Column(name = "patronymic")
-    @Size(max = 32, message = "Отчество может быть максимум 32 символа")
-    @Pattern(regexp = "^[^0-9]*$", message = "В отчестве не должно быть цифр")
-    private String patronymic;
-
     @Column(name = "image_name")
     private String imageName;
 
@@ -89,14 +84,6 @@ public class ClientInfo {
 
     public void setSurname(String surname) {
         this.surname = surname;
-    }
-
-    public String getPatronymic() {
-        return patronymic;
-    }
-
-    public void setPatronymic(String patronymic) {
-        this.patronymic = patronymic;
     }
 
     public LocalDate getDateOfBirth() {

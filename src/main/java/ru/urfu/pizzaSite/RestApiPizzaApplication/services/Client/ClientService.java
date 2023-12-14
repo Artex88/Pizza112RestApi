@@ -1,17 +1,17 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.services;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.api.SMSApi;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.AuthenticationDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.AuthenticationDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientRepository;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.AuthorizationAttemptsExhaustedException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.TooManyRequestException;
@@ -33,14 +33,17 @@ public class ClientService {
 
     private final RegistrationService registrationService;
 
+    private final JWTUtil jwtUtil;
+
 
     @Autowired
-    public ClientService(ClientRepository clientRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, SMSApi smsApi, RegistrationService registrationService) {
+    public ClientService(ClientRepository clientRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, SMSApi smsApi, RegistrationService registrationService, JWTUtil jwtUtil) {
         this.clientRepository = clientRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.smsApi = smsApi;
         this.registrationService = registrationService;
+        this.jwtUtil = jwtUtil;
     }
     @Transactional(readOnly = true)
     public Client findByPhoneNumber(String phoneNumber){
@@ -120,5 +123,10 @@ public class ClientService {
             registrationService.PreRegisterClient(new Client(phoneNumber, passwordEncoder.encode(rawPassword), LocalDateTime.now(),null));
             smsApi.sendSMSWithPassword(phoneNumber, rawPassword);
         }
+    }
+
+    public String getPhoneNumberFromToken(String token){
+        String jwt = token.substring(7);
+        return jwtUtil.validateTokenAndRetrieveClaim(jwt);
     }
 }

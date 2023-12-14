@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -16,19 +18,19 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.PizzaVariantDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ShowProductDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ProductType;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.PizzaVariantDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ProductDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowProductDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.SortException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.validators.ShowDTOValidator;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.CountException;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ShowDTOValidationException;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
 
 
 import java.util.List;
@@ -54,7 +56,7 @@ public class ShowController {
     }
 
     @PostMapping()
-    @Operation(summary = "Получение всех полей клиента(как получить изображение аватар из imageName читать подробнее в ClientInfoDTO). Для идентификации пользователя необходимо передавать в headers jwt-token (в хедере Authorization)")
+    @Operation(summary = "Получение определеного типа товара в определенном количестве + есть сортировка по полям товара (смотреть в ProductDTO.class, какие поля есть)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на получение 2 товаров типа 'Pizza' без сортировки", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "пример ответа",
@@ -96,9 +98,9 @@ public class ShowController {
                     "\n 4. Сортировку можно делать только по полям класса ProductDTO, а единственный стороний доступный символ - '-' перед названием поля, для сортировки в порядке убывания")
     }
     )
-    public ResponseEntity<List<ProductDTO>> showProducts(@RequestBody ShowDTO showDTO, BindingResult bindingResult){
+    public ResponseEntity<List<ProductDTO>> showProducts(@RequestBody @Valid ShowDTO showDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors())
-            throw new ShowDTOValidationException(bindingResult);
+            throw new ValidationException(bindingResult);
         showDTOValidator.validate(showDTO,bindingResult);
         Pageable pageable = productService.getPageable(showDTO);
         List<ProductDTO> productList =  productService.findAllCertainProductsAndDisplayCertainCount(showDTO.getFrom(), pageable).stream().map(this::convertToProductDTO).toList();
@@ -106,10 +108,74 @@ public class ShowController {
     }
 
     @PostMapping("/product")
-    public ResponseEntity<Object> showProduct(@RequestBody ShowProductDTO showProductDTO){
+    @Operation(summary = "Получение всех вариантов конкретного товара")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример на получения всех вариантов мясной пиццы", content = {
+            @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
+                    summary = "пример запроса",
+                    value = """
+                            {
+                                "id": 0
+                            }
+                            """
+            ))
+    })
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "200", description = "Успешное получение всех вариантов", content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
+                            summary = "Пример ответа, варианты пришли",
+                            value = """
+                                    [
+                                        {
+                                            "name": "LTP",
+                                            "price": 879.0,
+                                            "weight": 700.0,
+                                            "image": "0.webp"
+                                        },
+                                        {
+                                            "name": "LP",
+                                            "price": 879.0,
+                                            "weight": 820.0,
+                                            "image": "0.webp"
+                                        },
+                                        {
+                                            "name": "MTP",
+                                            "price": 749.0,
+                                            "weight": 490.0,
+                                            "image": "0.webp"
+                                        },
+                                        {
+                                            "name": "STP",
+                                            "price": 499.0,
+                                            "weight": 290.0,
+                                            "image": "0.webp"
+                                        },
+                                        {
+                                            "name": "MP",
+                                            "price": 749.0,
+                                            "weight": 590.0,
+                                            "image": "0.webp"
+                                        },
+                                        {
+                                            "name": "SP",
+                                            "price": 499.0,
+                                            "weight": 390.0,
+                                            "image": "0.webp"
+                                        }
+                                    ]"""
+                    ))
+            }),
+            @ApiResponse(responseCode = "404", description = "Возможные варианты, когда выбрасывается ошибка 404 " +
+                    "\n 1. Продукта с id, который передаеться, не существует.")
+    }
+    )
+    public ResponseEntity<Object> showProduct(@RequestBody @Valid ShowProductDTO showProductDTO, BindingResult bindingResult){
+        if (bindingResult.hasErrors())
+            throw new ValidationException(bindingResult);
         Product product = productService.findById(showProductDTO.getId());
         if (Objects.equals(product.getProductType().getName(), ProductTypes.Pizza.name())){
-            Object pizzaVariantDTOList = product.getPizzaVariants().stream().map(pizzaVariant -> modelMapper.map(pizzaVariant, PizzaVariantDTO.class)).toList();
+            Object pizzaVariantDTOList = product.getProductVariants()
+                    .stream()
+                    .map(pizzaVariant -> modelMapper.map(pizzaVariant, PizzaVariantDTO.class)).peek(pizzaVariantDTO -> pizzaVariantDTO.setImage(product.getImageName())).toList();
             return new ResponseEntity<>(pizzaVariantDTOList,HttpStatus.OK);
         }
         return null;
@@ -118,33 +184,40 @@ public class ShowController {
         return this.modelMapper.map(product, ProductDTO.class);
     }
 
-    @ExceptionHandler(ShowDTOValidationException.class)
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    private ResponseEntity<ClientResponse> handleException(NotFoundException e){
+        ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<Void> handleException(ShowDTOValidationException e){
+    private ResponseEntity<ClientResponse> handleException(ValidationException e){
         String k = e.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("; "));
-        //ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse,HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(CountException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<Void> handleException(CountException e){
-        //ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
-        return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+    private ResponseEntity<ClientResponse> handleException(CountException e){
+        ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(SortException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<Void> handleException(SortException e){
-        //ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
-        return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+    private ResponseEntity<ClientResponse> handleException(SortException e){
+        ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ResponseEntity<Void> handleException(HttpMessageNotReadableException e){
-        //ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
-        return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+    private ResponseEntity<ClientResponse> handleException(HttpMessageNotReadableException e){
+        ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
 
 }
