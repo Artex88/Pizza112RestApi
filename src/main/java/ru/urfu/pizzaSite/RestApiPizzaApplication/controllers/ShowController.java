@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -20,10 +21,12 @@ import org.springframework.data.domain.Pageable;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.PizzaVariantDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ProductDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowProductDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.SortException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.validators.ShowDTOValidator;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.CountException;
@@ -53,7 +56,7 @@ public class ShowController {
     }
 
     @PostMapping()
-    @Operation(summary = "Получение определеного типа товара в определенном количестве + есть сортировка по полям товара (смотреть в ProductDTO.class, какие поля есть)") //todo
+    @Operation(summary = "Получение определеного типа товара в определенном количестве + есть сортировка по полям товара (смотреть в ProductDTO.class, какие поля есть)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на получение 2 товаров типа 'Pizza' без сортировки", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "пример ответа",
@@ -105,10 +108,71 @@ public class ShowController {
     }
 
     @PostMapping("/product")
-    public ResponseEntity<Object> showProduct(@RequestParam("id") int id){
-        Product product = productService.findById(id);
+    @Operation(summary = "Получение всех вариантов конкретного товара")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример на получения всех вариантов мясной пиццы", content = {
+            @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
+                    summary = "пример запроса",
+                    value = """
+                            {
+                                "id": 0
+                            }
+                            """
+            ))
+    })
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "200", description = "Успешное получение всех вариантов", content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
+                            summary = "Пример ответа, варианты пришли",
+                            value = """
+                                    [
+                                        {
+                                            "name": "LTP",
+                                            "price": 879.0,
+                                            "weight": 700.0,
+                                            "image": "0.webp"
+                                        },
+                                        {
+                                            "name": "LP",
+                                            "price": 879.0,
+                                            "weight": 820.0,
+                                            "image": "0.webp"
+                                        },
+                                        {
+                                            "name": "MTP",
+                                            "price": 749.0,
+                                            "weight": 490.0,
+                                            "image": "0.webp"
+                                        },
+                                        {
+                                            "name": "STP",
+                                            "price": 499.0,
+                                            "weight": 290.0,
+                                            "image": "0.webp"
+                                        },
+                                        {
+                                            "name": "MP",
+                                            "price": 749.0,
+                                            "weight": 590.0,
+                                            "image": "0.webp"
+                                        },
+                                        {
+                                            "name": "SP",
+                                            "price": 499.0,
+                                            "weight": 390.0,
+                                            "image": "0.webp"
+                                        }
+                                    ]"""
+                    ))
+            }),
+            @ApiResponse(responseCode = "404", description = "Возможные варианты, когда выбрасывается ошибка 404 " +
+                    "\n 1. Продукта с id, который передаеться, не существует.")
+    }
+    )
+    public ResponseEntity<Object> showProduct(@RequestBody @Valid ShowProductDTO showProductDTO, BindingResult bindingResult){
+        if (bindingResult.hasErrors())
+            throw new ValidationException(bindingResult);
+        Product product = productService.findById(showProductDTO.getId());
         if (Objects.equals(product.getProductType().getName(), ProductTypes.Pizza.name())){
-            // TODO СДЕЛАТЬ ЧТОБЫ ВОЗВРАЩАЛО КАРТИНКУ
             Object pizzaVariantDTOList = product.getProductVariants()
                     .stream()
                     .map(pizzaVariant -> modelMapper.map(pizzaVariant, PizzaVariantDTO.class)).peek(pizzaVariantDTO -> pizzaVariantDTO.setImage(product.getImageName())).toList();
@@ -118,6 +182,13 @@ public class ShowController {
     }
     public ProductDTO convertToProductDTO(Product product){
         return this.modelMapper.map(product, ProductDTO.class);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    private ResponseEntity<ClientResponse> handleException(NotFoundException e){
+        ClientResponse clientResponse = new ClientResponse(e.getMessage(), System.currentTimeMillis());
+        return new ResponseEntity<>(clientResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(ValidationException.class)

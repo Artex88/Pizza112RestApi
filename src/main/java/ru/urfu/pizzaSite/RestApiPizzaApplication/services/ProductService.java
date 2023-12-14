@@ -40,7 +40,7 @@ public class ProductService {
     public Product findById(int id){
         Optional<Product> productOptional= productRepository.findById(id);
         if (productOptional.isEmpty())
-            throw new NotFoundException("There are not this product");
+            throw new NotFoundException("Product with this id does not exist");
         return productOptional.get();
     }
 

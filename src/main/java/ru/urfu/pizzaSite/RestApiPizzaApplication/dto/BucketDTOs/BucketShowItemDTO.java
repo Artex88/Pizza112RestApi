@@ -1,22 +1,25 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Сущность, в которой приходит 1 ячейка продукта для корзины")
 public class BucketShowItemDTO {
-
+    @Schema(description = "Название продукта")
     private String name;
-
-    private String variant;
-
+    @Schema(description = "Варинт продукта, подробнее про варианты смотреть в ProductVariants enum")
+    private String productVariant;
+    @Schema(description = "количество единиц продукта в ячейке")
     private Integer quantity;
-
+    @Schema(description = "общая цена продукта в ячейке(количество умноженное на базовую цену)")
     private Double itemPrice;
-
+    @Schema(description = "цена варианта продукта в единичном экземпляре")
     private Double productVariantPrice;
-
+    @Schema(description = "идентификатор картинки продукта")
     private String image;
 
-    public BucketShowItemDTO(String name, String variant, Integer quantity, Double itemPrice, Double productVariantPrice, String image) {
+    public BucketShowItemDTO(String name, String productVariant, Integer quantity, Double itemPrice, Double productVariantPrice, String image) {
         this.name = name;
-        this.variant = variant;
+        this.productVariant = productVariant;
         this.quantity = quantity;
         this.itemPrice = itemPrice;
         this.productVariantPrice = productVariantPrice;
@@ -31,12 +34,12 @@ public class BucketShowItemDTO {
         this.name = name;
     }
 
-    public String getVariant() {
-        return variant;
+    public String getProductVariant() {
+        return productVariant;
     }
 
-    public void setVariant(String variant) {
-        this.variant = variant;
+    public void setProductVariant(String productVariant) {
+        this.productVariant = productVariant;
     }
 
     public Integer getQuantity() {

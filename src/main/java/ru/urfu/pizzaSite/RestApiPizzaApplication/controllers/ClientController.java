@@ -50,6 +50,7 @@ public class ClientController {
     }
 
     @PostMapping("/updatePP")
+    //TODO ПОФИКСИТЬ БАГ СО СМЕНОЙ НОМЕРА ТЕЛЕФОНА
     @Operation(summary = "Обновление всех переданных текстовых полей клиента, кроме аватара. Для идентификации пользователя необходимо передавать в headers jwt-token (в хедере Authorization)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на обновление некоторых полей пользователя", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
@@ -141,7 +142,6 @@ public class ClientController {
             @ApiResponse(responseCode = "400" , description = "-------"),
             @ApiResponse(responseCode = "500", description = "-------")
     })
-
     public Map<String, String> showPP(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         String phoneNumber = clientService.getPhoneNumberFromToken(token);
         ClientInfo clientInfo = clientInfoService.findByPhoneNumber(phoneNumber);

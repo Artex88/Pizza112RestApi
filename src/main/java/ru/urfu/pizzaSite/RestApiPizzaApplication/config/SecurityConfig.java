@@ -47,7 +47,6 @@ public class SecurityConfig {
 
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        //TODO
         http.csrf(AbstractHttpConfigurer::disable).cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configure(http))
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> authorizationManagerRequestMatcherRegistry
                         .requestMatchers( "/images/**", "/api/auth/**", "/api/show/**","/v2/api-docs/", "/v3/api-docs/","/v3/api-docs/**","/swagger-resources", "/swagger-resources/**", "configuration/ui", "configuration/security", "/swagger-ui/**", "/webjars/**", "/swagger-ui.html")

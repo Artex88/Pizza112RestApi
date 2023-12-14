@@ -21,6 +21,9 @@ public class Bucket {
     @Column(name = "created_at")
     private LocalDateTime createdTime;
 
+    @Column
+    private String status;
+
     @OneToMany(mappedBy = "bucket", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private Set<BucketItem> bucketItemSet;
 
@@ -28,10 +31,11 @@ public class Bucket {
 
     }
 
-    public Bucket(Client client, LocalDateTime createdTime, HashSet<BucketItem> bucketItemSet) {
+    public Bucket(Client client, LocalDateTime createdTime, HashSet<BucketItem> bucketItemSet, String status) {
         this.client = client;
         this.createdTime = createdTime;
         this.bucketItemSet = bucketItemSet;
+        this.status = status;
     }
 
     public int getId() {
@@ -64,5 +68,13 @@ public class Bucket {
 
     public void setBucketItemSet(Set<BucketItem> bucketItemSet) {
         this.bucketItemSet = bucketItemSet;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

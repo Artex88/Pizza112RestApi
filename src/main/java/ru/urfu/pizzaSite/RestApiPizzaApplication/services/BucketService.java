@@ -22,7 +22,7 @@ public class BucketService {
     }
 
     public void createBucket(Client client) {
-        Bucket bucket = new Bucket(client, LocalDateTime.now(), null);
+        Bucket bucket = new Bucket(client, LocalDateTime.now(), null,"ACTIVE");
         this.save(bucket);
         client.setBucket(bucket);
     }
