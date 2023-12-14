@@ -59,21 +59,14 @@ public class ClientController {
             ))
     })
     @ApiResponses( value = {
-            @ApiResponse(responseCode = "200", description = "Все переданные поля прошли валидацию и обновились в БД (НЕ ПЕРЕДАВАЛСЯ НОМЕР ТЕЛЕФОНА)"),
-            @ApiResponse(responseCode = "200", description = "Все переданные поля прошли валидацию и обновились в БД (НЕ ПЕРЕДАВАЛСЯ НОМЕР ТЕЛЕФОНА)", content = {
-                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
-                            name = "Пример ответа, где передавался номер телефона. Возвращает новый jwt-token, который надо обновить в headers",
-                            summary = "Пример ответа, где передавался номер телефона. Возвращает новый jwt-token, который надо обновить в headers",
-                            value = "{\"message\": mtprrwlko4032krwmekogeoi24grgw...}"
-                    ))
-            }),
+            @ApiResponse(responseCode = "200", description = "Все переданные поля прошли валидацию и обновились в БД."),
             @ApiResponse(responseCode = "400", description = "Возможные варианты, когда выбрасывается ошибка 400 " +
                     "\n 1. Не прошла валидация для полей clientInfoDTO;" +
                     "\n 2. Дату рождения клиента нужно передевать строго в формате 1970-MM-dd, где mm и dd указываются пользователем."),
             @ApiResponse(responseCode = "403", description = "Возможные варианты, когда выбрасывается ошибка 403" +
                     "\n 1. Проблема с jwt-token (просрочен, не валиден, отсутствует)"),
             @ApiResponse(responseCode = "404", description = "Возможные варианты, когда выбрасывается ошибка 404" +
-                    "\n 1. Пользователя, номер, которого вы передали в jwt токене не существует."),
+                    "\n 1. Пользователя, номер которого вы передали в jwt токене, не существует."),
             @ApiResponse(responseCode = "500", description = "-------")
     }
     )
@@ -84,9 +77,6 @@ public class ClientController {
         Client client = clientService.findByPhoneNumber(phoneNumber);
 
         clientService.save(clientInfoService.updateClientInfo(client, clientInfoDTO));
-        if (clientInfoDTO.getPhoneNumber() != null){
-            return new ResponseEntity<>(new ClientResponse(jwtUtil.generateToken(clientInfoDTO.getPhoneNumber()), System.currentTimeMillis()), HttpStatus.OK);
-        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

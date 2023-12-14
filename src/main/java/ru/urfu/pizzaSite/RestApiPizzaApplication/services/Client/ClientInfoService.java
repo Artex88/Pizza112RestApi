@@ -47,7 +47,6 @@ public class ClientInfoService {
 
     @Transactional
     public Client updateClientInfo(Client client, ClientInfoDTO clientInfoDTO){
-        updateFieldIfNotNull(clientInfoDTO.getPhoneNumber(), client::setPhoneNumber);
         ClientInfo clientInfo = client.getClient_info();
         BeanUtils.copyProperties(clientInfoDTO, clientInfo, getNullPropertyNames(clientInfoDTO));
         return client;
@@ -92,11 +91,6 @@ public class ClientInfoService {
         }
         String[] result = new String[emptyNames.size()];
         return emptyNames.toArray(result);
-    }
-
-    private <T> void updateFieldIfNotNull(T newValue, Consumer<T> updateFunction){
-        if (newValue != null)
-            updateFunction.accept(newValue);
     }
 
     public Map<String, String> fillClientInfoJSON(ClientInfo clientInfo) {

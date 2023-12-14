@@ -16,11 +16,6 @@ public class ClientInfoDTO {
     @Schema(description = "поле имени пользователя")
     private String name;
 
-    @Column(name = "phone_number")
-    @Size(min = 11, message = "Номер должен содержать 11 цифр")
-    @Schema(description = "поле номера телефона пользователя")
-    private String phoneNumber;
-
     @Column(name = "surname")
     @Size(max = 32, message = "Фамилия может быть максимум 32 символа")
     @Pattern(regexp = "^[^0-9]*$", message = "В фамилии не должно быть цифр")
@@ -72,13 +67,5 @@ public class ClientInfoDTO {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 }
