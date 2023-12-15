@@ -158,8 +158,8 @@ public class AuthController {
 
 
     @PostMapping("/sms_check/resend")
-    @Operation(summary = "Повторная отпрвка сообщения с одноразовым кодом на номер телефона")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на повторную отправку кода для спец. номера +79999999999(используется ClientDTO).", content = {
+    @Operation(summary = "Повторная отправка сообщения с одноразовым кодом на номер телефона(используется ClientDTO)")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на повторную отправку кода для спец. номера +79999999999.", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "Пример запроса на повт. отправку кода на спец номер +79999999999",
                     value = "{\"phoneNumber\": 79999999999}"
