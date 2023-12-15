@@ -62,7 +62,7 @@ public class ClientInfoService {
         String customPath = clientInfo.getId() + "." + contentType;
         try {
             String photoName = clientInfo.getImageName();
-            if (photoName != null){
+            if (photoName != null && !photoName.equals("default.webp")){
                 Files.delete(Paths.get(absolutePath + photoName));
             }
             Files.write(Paths.get(absolutePath + customPath), imageFile.getBytes());
