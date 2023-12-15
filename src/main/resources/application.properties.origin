@@ -9,3 +9,4 @@ jwt_secret=
 
 sms_login=
 sms_password=
+config_default_prefix =

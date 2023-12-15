@@ -4,6 +4,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +24,9 @@ import java.util.function.Consumer;
 
 @Service
 public class ClientInfoService {
+
+    @Value("${config_default_prefix}")
+    private String configDefaultPrefix;
 
     private final ClientInfoRepository clientInfoRepository;
 
@@ -54,7 +58,7 @@ public class ClientInfoService {
     @Transactional
     public void updateAvatar(ClientInfo clientInfo, MultipartFile imageFile) throws IOException {
         String contentType = validateImageAndGetContentType(imageFile);
-        String absolutePath = "src/main/resources/static/images/Avatars/";
+        String absolutePath = configDefaultPrefix + "src/main/resources/static/images/Avatars/";
         String customPath = clientInfo.getId() + "." + contentType;
         try {
             String photoName = clientInfo.getImageName();
