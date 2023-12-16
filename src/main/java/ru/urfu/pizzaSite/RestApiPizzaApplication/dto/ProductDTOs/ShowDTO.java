@@ -9,9 +9,6 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.util.interfaces.EnumValidator;
 @Schema(description = "Сущность, которую необходимо передавать, чтобы получить из БД какой-то тип продуктов в определенном количестве")
 public class ShowDTO {
     @NotNull(message = "Поле типа продукта не может быть null")
-    @NotEmpty(message = "Поле типа продукта не может быть пустым")
-    @Size(max = 64, message = "Название типа продукта может быть максимум 64 символа")
-    @EnumValidator(enumClazz = ProductTypes.class, message = "Неправильно указан тип продукта")
     @Schema(description = "поле названия типа продукта. Можно передавать только те названия, которые есть в Enum ProductTypes",  enumAsRef = true)
     private ProductTypes from;
     @NotNull(message = "Кол-во выводимых товаров не может быть равно null")
