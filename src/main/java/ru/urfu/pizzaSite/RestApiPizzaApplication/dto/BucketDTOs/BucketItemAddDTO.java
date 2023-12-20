@@ -19,15 +19,6 @@ public class BucketItemAddDTO {
     @Schema(description = "Варинт продукта, подробнее про варианты смотреть в ProductVariants enum")
     private ProductVariants productVariant;
 
-    private boolean isReturnBucketItem;
-
-    public boolean isReturnBucketItem() {
-        return isReturnBucketItem;
-    }
-
-    public void setReturnBucketItem(boolean returnBucketItem) {
-        isReturnBucketItem = returnBucketItem;
-    }
 
     public Integer getProductId() {
         return productId;

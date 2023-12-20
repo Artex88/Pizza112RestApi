@@ -188,7 +188,8 @@ public class BucketController {
                                            "quantity": 10,
                                            "itemPrice": 499.0,
                                            "productVariantPrice": 4990.0,
-                                           "image": "0.webp"
+                                           "image": "0.webp",
+                                           "productId": 0
                                         },
                                         {
                                            "name": "Сырные чипсы",
@@ -196,7 +197,8 @@ public class BucketController {
                                            "quantity": 5,
                                            "itemPrice": 105.0,
                                            "productVariantPrice": 525.0,
-                                           "image": "3.webp"
+                                           "image": "3.webp",
+                                           "productId": 3
                                          }
                                     ]"""
                     ))
@@ -220,7 +222,8 @@ public class BucketController {
                         bucketItem.getQuantity(),
                         bucketItem.getProductVariant().getProductVariantPrice(),
                         bucketItem.getItemPrice(),
-                        bucketItem.getProduct().getImageName()
+                        bucketItem.getProduct().getImageName(),
+                        bucketItem.getId()
                 ))
                 .collect(Collectors.toList());
 
