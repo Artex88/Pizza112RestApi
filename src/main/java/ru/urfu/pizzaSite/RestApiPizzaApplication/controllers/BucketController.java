@@ -217,6 +217,7 @@ public class BucketController {
         Bucket bucket = client.getBucket();
         List<BucketShowItemDTO> showItemDTOSet = bucket.getBucketItemSet().stream()
                 .map(bucketItem -> new BucketShowItemDTO(
+                        bucket.getId(),
                         bucketItem.getProduct().getProductName(),
                         bucketItem.getProductVariant().getProductVariantName(),
                         bucketItem.getQuantity(),
