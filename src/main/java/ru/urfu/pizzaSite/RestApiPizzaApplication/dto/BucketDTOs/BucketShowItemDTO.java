@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class BucketShowItemDTO {
 
     @Schema(description = "bucket id")
-    private int id;
+    private int bucketId;
     @Schema(description = "id продукта")
     private int productId;
     @Schema(description = "Название продукта")
@@ -23,7 +23,7 @@ public class BucketShowItemDTO {
     private String image;
 
     public BucketShowItemDTO(int id, String name, String productVariant, Integer quantity, Double itemPrice, Double productVariantPrice, String image, int productId) {
-        this.id = id;
+        this.bucketId = id;
         this.productId = productId;
         this.name = name;
         this.productVariant = productVariant;
@@ -89,11 +89,11 @@ public class BucketShowItemDTO {
         this.productId = productId;
     }
 
-    public int getId() {
-        return id;
+    public int getBucketId() {
+        return bucketId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setBucketId(int bucketId) {
+        this.bucketId = bucketId;
     }
 }

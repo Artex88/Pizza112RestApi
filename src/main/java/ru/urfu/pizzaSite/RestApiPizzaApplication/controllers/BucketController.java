@@ -224,7 +224,7 @@ public class BucketController {
                         bucketItem.getProductVariant().getProductVariantPrice(),
                         bucketItem.getItemPrice(),
                         bucketItem.getProduct().getImageName(),
-                        bucketItem.getId()
+                        bucketItem.getProduct().getId()
                 ))
                 .collect(Collectors.toList());
 
