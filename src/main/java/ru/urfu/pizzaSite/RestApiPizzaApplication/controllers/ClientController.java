@@ -37,15 +37,12 @@ import java.util.stream.Collectors;
 public class ClientController {
     private final ClientInfoService clientInfoService;
 
-    private final JWTUtil jwtUtil;
-
     private final ClientService clientService;
 
 
     @Autowired
-    public ClientController(ClientInfoService clientInfoService, JWTUtil jwtUtil, ClientService clientService) {
+    public ClientController(ClientInfoService clientInfoService, ClientService clientService) {
         this.clientInfoService = clientInfoService;
-        this.jwtUtil = jwtUtil;
         this.clientService = clientService;
     }
 
