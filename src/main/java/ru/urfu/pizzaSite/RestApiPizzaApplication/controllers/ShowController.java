@@ -17,9 +17,12 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ReviewDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Review;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ReviewService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Product.ProductService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
@@ -42,12 +45,15 @@ public class ShowController {
 
     private final ProductService productService;
 
+    private final ReviewService reviewService;
+
     private final ModelMapper modelMapper;
 
     @Autowired
-    public ShowController(ShowDTOValidator showDTOValidator, ProductService productService, ModelMapper modelMapper) {
+    public ShowController(ShowDTOValidator showDTOValidator, ProductService productService, ReviewService reviewService, ModelMapper modelMapper) {
         this.showDTOValidator = showDTOValidator;
         this.productService = productService;
+        this.reviewService = reviewService;
         this.modelMapper = modelMapper;
     }
 
@@ -182,8 +188,18 @@ public class ShowController {
         }
         return null;
     }
+
+    @GetMapping("/reviews")
+    public ResponseEntity<List<ReviewDTO>> getReviews(){
+        List<ReviewDTO> reviewDTOList =  reviewService.getSomeReviews().stream().map(this::convertToReviewDTO).toList();
+        return new ResponseEntity<>(reviewDTOList, HttpStatus.OK);
+    }
+
     public ProductDTO convertToProductDTO(Product product){
         return this.modelMapper.map(product, ProductDTO.class);
+    }
+    public ReviewDTO convertToReviewDTO(Review review){
+        return this.modelMapper.map(review, ReviewDTO.class);
     }
 
     @ExceptionHandler(NotFoundException.class)

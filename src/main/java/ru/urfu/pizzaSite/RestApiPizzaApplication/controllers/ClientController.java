@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -17,13 +18,16 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.AuthenticationDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ClientInfoDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ReviewDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Review;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientInfoService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ReviewService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 
@@ -39,11 +43,17 @@ public class ClientController {
 
     private final ClientService clientService;
 
+    private final ReviewService reviewService;
+
+    private final ModelMapper modelMapper;
+
 
     @Autowired
-    public ClientController(ClientInfoService clientInfoService, ClientService clientService) {
+    public ClientController(ClientInfoService clientInfoService, ClientService clientService, ReviewService reviewService, ModelMapper modelMapper) {
         this.clientInfoService = clientInfoService;
         this.clientService = clientService;
+        this.reviewService = reviewService;
+        this.modelMapper = modelMapper;
     }
 
     @PostMapping("/updatePP")
@@ -135,6 +145,20 @@ public class ClientController {
 
         return clientInfoService.fillClientInfoJSON(clientInfo);
     }
+    // TODO написать доку
+    @PostMapping("/putReview")
+    public ResponseEntity<Void> leaveReview(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid ReviewDTO reviewDTO, BindingResult bindingResult){
+        if (bindingResult.hasErrors())
+            throw new ValidationException(bindingResult);
+
+        String phoneNumber = clientService.getPhoneNumberFromToken(token);
+        Client client = clientService.findByPhoneNumber(phoneNumber);
+
+        Review review = this.convertToReview(reviewDTO);
+        review.setClient(client);
+        reviewService.save(review);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -163,5 +187,9 @@ public class ClientController {
     private ResponseEntity<ClientResponse> handleException(HttpMessageNotReadableException e){
         ClientResponse clientResponse = new ClientResponse("The date must be transmitted in the format \"1970-MM-dd\"", System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    public Review convertToReview(ReviewDTO reviewDTO){
+        return this.modelMapper.map(reviewDTO, Review.class);
     }
 }
