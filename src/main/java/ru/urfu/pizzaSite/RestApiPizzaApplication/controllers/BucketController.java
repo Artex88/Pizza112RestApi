@@ -19,11 +19,11 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs.BucketItemAddDTO
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs.BucketItemDeleteDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs.BucketShowItemDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.*;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.BucketItemService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.BucketService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Bucket.BucketItemService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Bucket.BucketService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.services.ProductVariantService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Product.ProductService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Product.ProductVariantService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.CountException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
