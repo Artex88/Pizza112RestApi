@@ -1,4 +1,4 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 
 public class ClientResponse {
     private String message;

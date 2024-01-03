@@ -2,8 +2,8 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.services.Product;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ProductVariant;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.Product;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.ProductVariant;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ProductVariantRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductVariants;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;

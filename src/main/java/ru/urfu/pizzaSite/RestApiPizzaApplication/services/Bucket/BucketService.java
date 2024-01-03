@@ -2,8 +2,8 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.services.Bucket;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.Bucket;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.BucketRepository;
 
 import java.time.LocalDateTime;

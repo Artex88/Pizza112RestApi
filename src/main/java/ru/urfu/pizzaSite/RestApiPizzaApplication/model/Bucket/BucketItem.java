@@ -1,6 +1,8 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket;
 
 import jakarta.persistence.*;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.Product;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.ProductVariant;
 
 @Entity
 @Table(name = "bucket_item")

@@ -3,8 +3,8 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.Client;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientInfoRepository;
 

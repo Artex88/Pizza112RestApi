@@ -1,9 +1,9 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.BucketItem;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity

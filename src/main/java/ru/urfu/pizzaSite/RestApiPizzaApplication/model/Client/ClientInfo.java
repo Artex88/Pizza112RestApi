@@ -1,7 +1,8 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Review;
 
 import java.time.LocalDate;
 import java.util.List;

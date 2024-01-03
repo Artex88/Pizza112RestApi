@@ -3,7 +3,10 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.services.Bucket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.*;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.Bucket;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.BucketItem;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.Product;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.ProductVariant;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.BucketItemRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 

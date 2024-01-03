@@ -1,12 +1,12 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.Bucket;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "client")

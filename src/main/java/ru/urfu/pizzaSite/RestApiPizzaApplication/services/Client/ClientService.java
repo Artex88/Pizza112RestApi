@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.api.SMSApi;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.AuthenticationDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.AuthorizationAttemptsExhaustedException;

@@ -1,6 +1,7 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket;
 
 import jakarta.persistence.*;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.Client;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
