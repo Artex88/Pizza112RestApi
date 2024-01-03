@@ -189,8 +189,23 @@ public class ShowController {
         return null;
     }
 
-    // TODO написать доку
+
     @GetMapping("/reviews")
+    @Operation(summary = "Получение 5-ти случаных отзывов из базы данных(используется ClientReviewDTO)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Запрос прошёл успешно", content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
+                            summary = "Пример ответа, где передаются все поля клиента",
+                            value = """
+                                        "rating": "3.5",
+                                        "text": "на 3.5 норм",
+                                        "authorName": "Петр",
+                                        "authorAvatar": "default.webp",
+                                        }
+                                        ....... еще 4 подобных отзыва"""
+                    ))
+            })
+    })
     public ResponseEntity<List<ClientReviewDTO>> getReviews(){
         List<ClientReviewDTO> reviewDTOList =  reviewService.getSomeReviews().stream().map(this::convertToReviewDTO).toList();
         return new ResponseEntity<>(reviewDTOList, HttpStatus.OK);

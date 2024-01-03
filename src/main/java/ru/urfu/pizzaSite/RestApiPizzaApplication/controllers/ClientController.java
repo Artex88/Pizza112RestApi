@@ -145,8 +145,19 @@ public class ClientController {
 
         return clientInfoService.fillClientInfoJSON(clientInfo);
     }
-    // TODO написать доку
+
     @PostMapping("/putReview")
+    @Operation(summary = "Отправка отзыва пользователем(используется ReviewDTO). Для идентификации пользователя необходимо передавать в headers jwt-token (в хедере Authorization)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Отправка прошла успешно"),
+            @ApiResponse(responseCode = "403", description = "Возможные варианты, когда выбрасывается ошибка 403: " +
+                    "\n 1. Проблема с jwt-token (просрочен, не валиден, отсутствует)"),
+            @ApiResponse(responseCode = "404", description = "Возможные варианты, когда выбрасывается ошибка 404: " +
+                    "\n 1. Пользователя, номер, которого вы передали в jwt токене не существует."),
+            @ApiResponse(responseCode = "400" , description = "Возможные варианты, когда выбрасывается ошибка 404: " +
+                    "1. Неправильно передан рейтинг или поле с текстом отзыва."),
+            @ApiResponse(responseCode = "500", description = "-------")
+    })
     public ResponseEntity<Void> leaveReview(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid ReviewDTO reviewDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
