@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "client_info")
@@ -42,6 +43,9 @@ public class ClientInfo {
     @OneToOne
     @JoinColumn(name = "client_id", referencedColumnName = "id")
     private Client client;
+
+    @OneToMany(mappedBy = "client")
+    private List<Review> reviewList;
 
     public ClientInfo() {
     }
@@ -108,5 +112,13 @@ public class ClientInfo {
 
     public void setImageName(String photoName) {
         this.imageName = photoName;
+    }
+
+    public List<Review> getReviewList() {
+        return reviewList;
+    }
+
+    public void setReviewList(List<Review> reviewList) {
+        this.reviewList = reviewList;
     }
 }

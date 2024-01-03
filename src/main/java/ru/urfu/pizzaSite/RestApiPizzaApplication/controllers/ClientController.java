@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -17,17 +18,21 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.AuthenticationDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ClientInfoDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ReviewDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Review;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientInfoService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ReviewService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 
 import java.io.IOException;
+import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -37,16 +42,19 @@ import java.util.stream.Collectors;
 public class ClientController {
     private final ClientInfoService clientInfoService;
 
-    private final JWTUtil jwtUtil;
-
     private final ClientService clientService;
+
+    private final ReviewService reviewService;
+
+    private final ModelMapper modelMapper;
 
 
     @Autowired
-    public ClientController(ClientInfoService clientInfoService, JWTUtil jwtUtil, ClientService clientService) {
+    public ClientController(ClientInfoService clientInfoService, ClientService clientService, ReviewService reviewService, ModelMapper modelMapper) {
         this.clientInfoService = clientInfoService;
-        this.jwtUtil = jwtUtil;
         this.clientService = clientService;
+        this.reviewService = reviewService;
+        this.modelMapper = modelMapper;
     }
 
     @PostMapping("/updatePP")
@@ -138,6 +146,22 @@ public class ClientController {
 
         return clientInfoService.fillClientInfoJSON(clientInfo);
     }
+    // TODO написать доку
+    @PostMapping("/putReview")
+    public ResponseEntity<Void> leaveReview(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid ReviewDTO reviewDTO, BindingResult bindingResult){
+        if (bindingResult.hasErrors())
+            throw new ValidationException(bindingResult);
+        if (reviewDTO.getRating() > 5 || reviewDTO.getRating() < 1 || reviewDTO.getRating() * 10 % 5 != 0)
+            throw new InputMismatchException();
+
+        String phoneNumber = clientService.getPhoneNumberFromToken(token);
+        ClientInfo clientInfo = clientInfoService.findByPhoneNumber(phoneNumber);
+
+        Review review = this.convertToReview(reviewDTO);
+        review.setClient(clientInfo);
+        reviewService.save(review);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -145,6 +169,12 @@ public class ClientController {
         String k = e.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("; "));
         ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse,HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InputMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private ResponseEntity<ClientResponse> handleException(InputMismatchException e){
+        return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFoundException.class)
@@ -164,7 +194,11 @@ public class ClientController {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     private ResponseEntity<ClientResponse> handleException(HttpMessageNotReadableException e){
-        ClientResponse clientResponse = new ClientResponse("The date must be transmitted in the format \"1970-MM-dd\"", System.currentTimeMillis());
+        ClientResponse clientResponse = new ClientResponse("The date must be transmitted in the format \"1970-MM-dd\" or another field validation error(wrong type input)", System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    public Review convertToReview(ReviewDTO reviewDTO){
+        return this.modelMapper.map(reviewDTO, Review.class);
     }
 }

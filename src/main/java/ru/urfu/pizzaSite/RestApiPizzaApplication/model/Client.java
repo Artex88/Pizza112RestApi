@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "client")
@@ -32,6 +33,8 @@ public class Client {
 
     @Column(name = "login_attempts")
     private int login_attempts;
+
+
 
     @OneToOne(mappedBy = "client", cascade=CascadeType.ALL)
     private ClientInfo client_info;
@@ -112,4 +115,5 @@ public class Client {
     public void setBucket(Bucket bucket) {
         this.bucket = bucket;
     }
+
 }

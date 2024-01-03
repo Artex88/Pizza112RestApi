@@ -1,4 +1,4 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.services;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.services.Bucket;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
