@@ -17,6 +17,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ClientReviewDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ReviewDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
@@ -189,17 +190,18 @@ public class ShowController {
         return null;
     }
 
+    // TODO написать доку
     @GetMapping("/reviews")
-    public ResponseEntity<List<ReviewDTO>> getReviews(){
-        List<ReviewDTO> reviewDTOList =  reviewService.getSomeReviews().stream().map(this::convertToReviewDTO).toList();
+    public ResponseEntity<List<ClientReviewDTO>> getReviews(){
+        List<ClientReviewDTO> reviewDTOList =  reviewService.getSomeReviews().stream().map(this::convertToReviewDTO).toList();
         return new ResponseEntity<>(reviewDTOList, HttpStatus.OK);
     }
 
     public ProductDTO convertToProductDTO(Product product){
         return this.modelMapper.map(product, ProductDTO.class);
     }
-    public ReviewDTO convertToReviewDTO(Review review){
-        return this.modelMapper.map(review, ReviewDTO.class);
+    public ClientReviewDTO convertToReviewDTO(Review review){
+        return new ClientReviewDTO(review.getRating(), review.getText(), review.getClient().getName(), review.getClient().getImageName());
     }
 
     @ExceptionHandler(NotFoundException.class)

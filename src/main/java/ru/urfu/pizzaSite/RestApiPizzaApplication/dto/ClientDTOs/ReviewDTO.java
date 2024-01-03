@@ -8,19 +8,18 @@ public class ReviewDTO {
 
     @Column(name = "rating")
     @NotNull
-    @NotEmpty
-    private double rating;
+    private Double rating;
 
     @Column(name = "text")
     @NotNull
     @NotEmpty
     private String text;
 
-    public double getRating() {
+    public Double getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(Double rating) {
         this.rating = rating;
     }
 

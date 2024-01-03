@@ -12,9 +12,9 @@ public class Review {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "client_id", referencedColumnName = "id")
+    @JoinColumn(name = "client_info_id", referencedColumnName = "id")
     @NotNull
-    private Client client;
+    private ClientInfo client;
 
     @Column(name = "rating")
     @NotNull
@@ -36,11 +36,11 @@ public class Review {
         this.id = id;
     }
 
-    public Client getClient() {
+    public ClientInfo getClient() {
         return client;
     }
 
-    public void setClient(Client client) {
+    public void setClient(ClientInfo client) {
         this.client = client;
     }
 

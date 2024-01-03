@@ -32,6 +32,7 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationExcep
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 
 import java.io.IOException;
+import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -150,12 +151,14 @@ public class ClientController {
     public ResponseEntity<Void> leaveReview(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid ReviewDTO reviewDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
+        if (reviewDTO.getRating() > 5 || reviewDTO.getRating() < 1 || reviewDTO.getRating() * 10 % 5 != 0)
+            throw new InputMismatchException();
 
         String phoneNumber = clientService.getPhoneNumberFromToken(token);
-        Client client = clientService.findByPhoneNumber(phoneNumber);
+        ClientInfo clientInfo = clientInfoService.findByPhoneNumber(phoneNumber);
 
         Review review = this.convertToReview(reviewDTO);
-        review.setClient(client);
+        review.setClient(clientInfo);
         reviewService.save(review);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -166,6 +169,12 @@ public class ClientController {
         String k = e.getBindingResult().getFieldErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("; "));
         ClientResponse clientResponse = new ClientResponse(k, System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse,HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InputMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    private ResponseEntity<ClientResponse> handleException(InputMismatchException e){
+        return new ResponseEntity<>( HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(NotFoundException.class)
@@ -185,7 +194,7 @@ public class ClientController {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     private ResponseEntity<ClientResponse> handleException(HttpMessageNotReadableException e){
-        ClientResponse clientResponse = new ClientResponse("The date must be transmitted in the format \"1970-MM-dd\"", System.currentTimeMillis());
+        ClientResponse clientResponse = new ClientResponse("The date must be transmitted in the format \"1970-MM-dd\" or another field validation error(wrong type input)", System.currentTimeMillis());
         return new ResponseEntity<>(clientResponse, HttpStatus.BAD_REQUEST);
     }
 

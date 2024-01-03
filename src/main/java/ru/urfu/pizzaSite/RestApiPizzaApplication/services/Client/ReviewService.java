@@ -1,7 +1,9 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Review;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ReviewRepository;
@@ -24,6 +26,6 @@ public class ReviewService {
     }
 
     public List<Review> getSomeReviews() {
-        return reviewRepository.findAll(Pageable.ofSize(5)).toList();
+        return reviewRepository.findRandomReviews();
     }
 }
