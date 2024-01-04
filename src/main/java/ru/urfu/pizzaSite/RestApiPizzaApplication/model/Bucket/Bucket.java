@@ -15,7 +15,7 @@ public class Bucket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @OneToOne()
+    @ManyToOne()
     @JoinColumn(name = "client_id", referencedColumnName = "id")
     private Client client;
 

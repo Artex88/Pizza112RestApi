@@ -94,7 +94,7 @@ public class BucketController {
 
         ProductVariant productVariant = productVariantService.getProductVariantFromProduct(bucketItemAddDTO.getProductVariant(), product);
         createClientBucketIfItDoesNotExist(client);
-        bucketItemService.updateAddIncreaseBucketItem(productVariant, product, client.getBucket(), bucketItemAddDTO.getQuantity());
+        bucketItemService.updateAddIncreaseBucketItem(productVariant, product, client.getBucketList().stream().filter(bucket1 -> Objects.equals(bucket1.getStatus(), "ACTIVE")).findFirst().get(), bucketItemAddDTO.getQuantity());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -127,7 +127,7 @@ public class BucketController {
     )
     public ResponseEntity<Void> deleteProductUnitFromClientCard(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid BucketItemDeleteDTO bucketItemDeleteDTO, BindingResult bindingResult) {
         handleBucketItemDeleteRequests(token, bucketItemDeleteDTO, bindingResult, (client, product, productVariant) ->
-                bucketItemService.updateDeleteOrDecreaseBucketItem(client.getBucket(), product, productVariant)
+                bucketItemService.updateDeleteOrDecreaseBucketItem(client.getBucketList().stream().filter(bucket1 -> Objects.equals(bucket1.getStatus(), "ACTIVE")).findFirst().get(), product, productVariant)
         );
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -160,7 +160,7 @@ public class BucketController {
     )
     public ResponseEntity<Void> resetProductUnitFromClientCard(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid BucketItemDeleteDTO bucketItemDeleteDTO, BindingResult bindingResult){
         handleBucketItemDeleteRequests(token, bucketItemDeleteDTO, bindingResult, (client, product, productVariant) ->
-                bucketItemService.resetBucketItem(client.getBucket(), product, productVariant)
+                bucketItemService.resetBucketItem(client.getBucketList().stream().filter(bucket1 -> Objects.equals(bucket1.getStatus(), "ACTIVE")).findFirst().get(), product, productVariant)
         );
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -170,7 +170,7 @@ public class BucketController {
             throw new ValidationException(bindingResult);
 
         Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
-        if (client.getBucket() == null)
+        if (client.getBucketList().stream().filter(bucket1 -> Objects.equals(bucket1.getStatus(), "ACTIVE")).findFirst().isEmpty())
             throw new NotFoundException("This client doesn't have active bucket");
 
         Product product = productService.findById(bucketItemDeleteDTO.getProductId());
@@ -215,10 +215,10 @@ public class BucketController {
     public ResponseEntity<List<BucketShowItemDTO>> showClientBucketProducts(@RequestHeader(HttpHeaders.AUTHORIZATION) String token)   {
         Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
 
-        if (client.getBucket() == null)
+        if (client.getBucketList().stream().filter(bucket1 -> Objects.equals(bucket1.getStatus(), "ACTIVE")).findFirst().isEmpty())
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
 
-        Bucket bucket = client.getBucket();
+        Bucket bucket = client.getBucketList().stream().filter(bucket1 -> Objects.equals(bucket1.getStatus(), "ACTIVE")).findFirst().get();
         List<BucketShowItemDTO> showItemDTOSet = bucket.getBucketItemSet().stream()
                 .map(bucketItem -> new BucketShowItemDTO(
                         bucket.getId(),
@@ -281,7 +281,7 @@ public class BucketController {
     }
 
     private void createClientBucketIfItDoesNotExist(Client client) {
-        if (client.getBucket() == null)
+        if (client.getBucketList() == null)
             bucketService.createBucket(client);
     }
 }
