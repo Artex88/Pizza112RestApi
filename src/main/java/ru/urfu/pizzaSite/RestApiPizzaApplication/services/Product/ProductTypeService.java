@@ -3,7 +3,7 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.services.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ProductType;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.ProductType;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ProductTypeRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;

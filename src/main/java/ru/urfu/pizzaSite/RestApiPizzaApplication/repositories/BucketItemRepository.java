@@ -5,9 +5,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.BucketItem;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ProductVariant;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.Bucket;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.BucketItem;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.ProductVariant;
 
 @Repository
 public interface BucketItemRepository extends JpaRepository<BucketItem, Integer> {

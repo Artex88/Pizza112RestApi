@@ -18,7 +18,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs.BucketItemAddDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs.BucketItemDeleteDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs.BucketShowItemDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.*;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowByIdDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.Bucket;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.Client;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.ClientResponse;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.Product;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.ProductVariant;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Bucket.BucketItemService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Bucket.BucketService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientService;
@@ -71,11 +76,12 @@ public class BucketController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Успешное добавление в базу"),
 
-            @ApiResponse(responseCode = "404", description = "Возможные варианты, когда выбрасывается ошибка 404 " +
-                    "\n 1. Продукта с id, который передаеться, не существует." +
-                    "\n 2. Пользователя, номер, которого вы передали в jwt токене не существует." +
-                    "\n 3. Варианта продукта, который передается, не существует у данного продукта." +
-                    "\n 4. Ошибка валидации."),
+            @ApiResponse(responseCode = "404", description = """
+                    Возможные варианты, когда выбрасывается ошибка 404\s
+                     1. Продукта с id, который передаеться, не существует.
+                     2. Пользователя, номер, которого вы передали в jwt токене не существует.
+                     3. Варианта продукта, который передается, не существует у данного продукта.
+                     4. Ошибка валидации."""),
 
             @ApiResponse(responseCode = "403", description = "Возможные варианты, когда выбрасывается ошибка 403: " +
                     "\n 1. Проблема с jwt-token (просрочен, не валиден, отсутствует)")
@@ -90,7 +96,7 @@ public class BucketController {
 
         ProductVariant productVariant = productVariantService.getProductVariantFromProduct(bucketItemAddDTO.getProductVariant(), product);
         createClientBucketIfItDoesNotExist(client);
-        bucketItemService.updateAddIncreaseBucketItem(productVariant, product, client.getBucket(), bucketItemAddDTO.getQuantity());
+        bucketItemService.updateAddIncreaseBucketItem(productVariant, product, client.getBucketList().stream().filter(Bucket::isActive).findFirst().get(), bucketItemAddDTO.getQuantity());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -111,11 +117,12 @@ public class BucketController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Продукт успешно удален или его количество уменьшено на единицу"),
 
-            @ApiResponse(responseCode = "404", description = "Возможные варианты, когда выбрасывается ошибка 404 " +
-                    "\n 2. Пользователя, номер, которого вы передали в jwt токене не существует." +
-                    "\n 3. Варианта продукта или продукта, который передается на удаление нету в корзине." +
-                    "\n 4. У данного пользователя не существует активной корзины." +
-                    "\n 5. Ошибка валидации"),
+            @ApiResponse(responseCode = "404", description = """
+                    Возможные варианты, когда выбрасывается ошибка 404\s
+                     2. Пользователя, номер, которого вы передали в jwt токене не существует.
+                     3. Варианта продукта или продукта, который передается на удаление нету в корзине.
+                     4. У данного пользователя не существует активной корзины.
+                     5. Ошибка валидации"""),
 
             @ApiResponse(responseCode = "403", description = "Возможные варианты, когда выбрасывается ошибка 403: " +
                     "\n 1. Проблема с jwt-token (просрочен, не валиден, отсутствует)")
@@ -123,7 +130,7 @@ public class BucketController {
     )
     public ResponseEntity<Void> deleteProductUnitFromClientCard(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid BucketItemDeleteDTO bucketItemDeleteDTO, BindingResult bindingResult) {
         handleBucketItemDeleteRequests(token, bucketItemDeleteDTO, bindingResult, (client, product, productVariant) ->
-                bucketItemService.updateDeleteOrDecreaseBucketItem(client.getBucket(), product, productVariant)
+                bucketItemService.updateDeleteOrDecreaseBucketItem(client.getBucketList().stream().filter(Bucket::isActive).findFirst().get(), product, productVariant)
         );
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -144,11 +151,12 @@ public class BucketController {
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Продукт успешно полностью удален из корзины"),
 
-            @ApiResponse(responseCode = "404", description = "Возможные варианты, когда выбрасывается ошибка 404 " +
-                    "\n 2. Пользователя, номер, которого вы передали в jwt токене не существует." +
-                    "\n 3. Варианта продукта или продукта, который передается на удаление нету в корзине." +
-                    "\n 4. У данного пользователя не существует активной корзины." +
-                    "\n 5. Ошибка валидации"),
+            @ApiResponse(responseCode = "404", description = """
+                    Возможные варианты, когда выбрасывается ошибка 404\s
+                     2. Пользователя, номер, которого вы передали в jwt токене не существует.
+                     3. Варианта продукта или продукта, который передается на удаление нету в корзине.
+                     4. У данного пользователя не существует активной корзины.
+                     5. Ошибка валидации"""),
 
             @ApiResponse(responseCode = "403", description = "Возможные варианты, когда выбрасывается ошибка 403: " +
                     "\n 1. Проблема с jwt-token (просрочен, не валиден, отсутствует)")
@@ -156,7 +164,7 @@ public class BucketController {
     )
     public ResponseEntity<Void> resetProductUnitFromClientCard(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid BucketItemDeleteDTO bucketItemDeleteDTO, BindingResult bindingResult){
         handleBucketItemDeleteRequests(token, bucketItemDeleteDTO, bindingResult, (client, product, productVariant) ->
-                bucketItemService.resetBucketItem(client.getBucket(), product, productVariant)
+                bucketItemService.resetBucketItem(client.getBucketList().stream().filter(Bucket::isActive).findFirst().get(), product, productVariant)
         );
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -166,7 +174,7 @@ public class BucketController {
             throw new ValidationException(bindingResult);
 
         Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
-        if (client.getBucket() == null)
+        if (client.getBucketList().stream().filter(Bucket::isActive).findFirst().isEmpty())
             throw new NotFoundException("This client doesn't have active bucket");
 
         Product product = productService.findById(bucketItemDeleteDTO.getProductId());
@@ -211,28 +219,102 @@ public class BucketController {
     public ResponseEntity<List<BucketShowItemDTO>> showClientBucketProducts(@RequestHeader(HttpHeaders.AUTHORIZATION) String token)   {
         Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
 
-        if (client.getBucket() == null)
+        if (client.getBucketList().stream().filter(Bucket::isActive).findFirst().isEmpty())
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
 
-        Bucket bucket = client.getBucket();
-        List<BucketShowItemDTO> showItemDTOSet = bucket.getBucketItemSet().stream()
-                .map(bucketItem -> new BucketShowItemDTO(
-                        bucket.getId(),
-                        bucketItem.getProduct().getProductName(),
-                        bucketItem.getProductVariant().getProductVariantName(),
-                        bucketItem.getQuantity(),
-                        bucketItem.getProductVariant().getProductVariantPrice(),
-                        bucketItem.getItemPrice(),
-                        bucketItem.getProduct().getImageName(),
-                        bucketItem.getProduct().getId()
-                ))
-                .collect(Collectors.toList());
+        Bucket bucket = client.getBucketList().stream().filter(Bucket::isActive).findFirst().get();
+        return getShowItemDTOSet(bucket);
+    }
 
-        showItemDTOSet = showItemDTOSet.stream()
-                .sorted(Comparator.comparing(BucketShowItemDTO::getName))
-                .collect(Collectors.toList());
+    @GetMapping("/showOrder")
+    @Operation(summary = "Показывает конкретный заказ из истории заказов, передавая id нужной корзины(нужна авторизация)(используется ShowByIdDTO)")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на показ заказа с id 0", content = {
+            @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
+                    summary = "пример запроса",
+                    value = """
+                            {
+                                "id": 0,
+                            }
+                            """
+            ))
+    })
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "200", description = "Нужная корзина была найдена и возвращается.", content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
+                            summary = "Пример ответа, где передается определенная корзина",
+                            value = """
+                                    [
+                                        {
+                                           "name": "Мясная",
+                                           "productVariant": "SP",
+                                           "quantity": 10,
+                                           "itemPrice": 499.0,
+                                           "productVariantPrice": 4990.0,
+                                           "image": "0.webp",
+                                           "productId": 0
+                                        },
+                                        {
+                                           "name": "Сырные чипсы",
+                                           "productVariant": "B",
+                                           "quantity": 5,
+                                           "itemPrice": 105.0,
+                                           "productVariantPrice": 525.0,
+                                           "image": "3.webp",
+                                           "productId": 3
+                                         }
+                                    ]"""
+                    ))
+            }),
 
-        return new ResponseEntity<>(showItemDTOSet, HttpStatus.OK);
+            @ApiResponse(responseCode = "404", description = """
+                    Возможные варианты, когда выбрасывается ошибка 404\s
+                     1. Пользователя, номер, которого вы передали в jwt токене не существует.
+                     2. У данного пользователя нету данной корзины.
+                     """),
+
+            @ApiResponse(responseCode = "403", description = "Возможные варианты, когда выбрасывается ошибка 403: " +
+                    "\n 1. Проблема с jwt-token (просрочен, не валиден, отсутствует)"),
+            @ApiResponse(responseCode = "400", description = "Возможные варианты, когда выбрасывается ошибка 403: " +
+                    "\n 1. Ошибка валидации")
+    }
+    )
+    public ResponseEntity<List<BucketShowItemDTO>> showClientOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid ShowByIdDTO showByIdDTO, BindingResult bindingResult)   {
+        if (bindingResult.hasErrors())
+            throw new ValidationException(bindingResult);
+
+        Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
+        Bucket bucket = bucketService.findById(showByIdDTO.getId());
+        if (!client.getBucketList().contains(bucket))
+            throw new NotFoundException("This client doesn't have this bucket");
+        return getShowItemDTOSet(bucket);
+    }
+
+    @PostMapping("/confirm")
+    @Operation(summary = "Эмитация того, что пользователь оплатил заказ. После обращения на этот endpoint текущая корзина становится неактивной и заносится в историю заказов(передавать ничего не нужно)")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "200", description = "Заказ 'оплачен' и корзина стала неактивной"),
+            @ApiResponse(responseCode = "404", description = """
+                    Возможные варианты, когда выбрасывается ошибка 404\s
+                     1. Пользователя, номер, которого вы передали в jwt токене не существует.
+                     2. У данного пользователя нету данной корзины.
+                     """),
+
+            @ApiResponse(responseCode = "403", description = "Возможные варианты, когда выбрасывается ошибка 403: " +
+                    "\n 1. Проблема с jwt-token (просрочен, не валиден, отсутствует)"),
+            @ApiResponse(responseCode = "400", description = "Возможные варианты, когда выбрасывается ошибка 403: " +
+                    "\n 1. Ошибка валидации")
+    }
+    )
+    public ResponseEntity<Void> confirmOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String token){
+        Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
+
+        if (client.getBucketList().stream().filter(Bucket::isActive).findFirst().isEmpty())
+            throw new NotFoundException("Client doesn't have active bucket");
+
+        Bucket bucket = client.getBucketList().stream().filter(Bucket::isActive).findFirst().get();
+        bucket.setStatus(false);
+        bucketService.save(bucket);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @FunctionalInterface
@@ -277,7 +359,28 @@ public class BucketController {
     }
 
     private void createClientBucketIfItDoesNotExist(Client client) {
-        if (client.getBucket() == null)
+        if (client.getBucketList().stream().filter(Bucket::isActive).findFirst().isEmpty())
             bucketService.createBucket(client);
+    }
+
+    private ResponseEntity<List<BucketShowItemDTO>> getShowItemDTOSet(Bucket bucket) {
+        List<BucketShowItemDTO> showItemDTOSet = bucket.getBucketItemSet().stream()
+                .map(bucketItem -> new BucketShowItemDTO(
+                        bucket.getId(),
+                        bucketItem.getProduct().getProductName(),
+                        bucketItem.getProductVariant().getProductVariantName(),
+                        bucketItem.getQuantity(),
+                        bucketItem.getProductVariant().getProductVariantPrice(),
+                        bucketItem.getItemPrice(),
+                        bucketItem.getProduct().getImageName(),
+                        bucketItem.getProduct().getId()
+                ))
+                .collect(Collectors.toList());
+
+        showItemDTOSet = showItemDTOSet.stream()
+                .sorted(Comparator.comparing(BucketShowItemDTO::getName))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(showItemDTOSet, HttpStatus.OK);
     }
 }

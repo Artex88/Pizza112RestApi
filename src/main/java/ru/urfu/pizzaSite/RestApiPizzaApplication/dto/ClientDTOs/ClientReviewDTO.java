@@ -1,22 +1,27 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-
+@Schema(description = "DTO, которое приходит на каждый отзыв, при получении 5 случайных отзывов из базы")
 public class ClientReviewDTO {
 
     @Column(name = "rating")
     @NotNull
+    @Schema(description = "поле рейтинга")
     private Double rating;
 
     @Column(name = "text")
     @NotNull
     @NotEmpty
+    @Schema(description = "поле текста")
     private String text;
 
+    @Schema(description = "поле имени автора")
     private String authorName;
 
+    @Schema(description = "поле пути к аватару автора")
     private String authorAvatar;
 
     public ClientReviewDTO(Double rating, String text, String authorName, String authorAvatar) {

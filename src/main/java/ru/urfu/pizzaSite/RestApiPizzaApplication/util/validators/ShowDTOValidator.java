@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.Product;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Product.ProductService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.CountException;

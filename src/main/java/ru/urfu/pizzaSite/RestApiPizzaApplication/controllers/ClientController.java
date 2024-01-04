@@ -18,21 +18,24 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.AuthenticationDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ClientInfoDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.OrderDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ReviewDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientInfo;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.Bucket;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.Client;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Review;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientInfoService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientService;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.ClientResponse;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ReviewService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -146,8 +149,19 @@ public class ClientController {
 
         return clientInfoService.fillClientInfoJSON(clientInfo);
     }
-    // TODO написать доку
+
     @PostMapping("/putReview")
+    @Operation(summary = "Отправка отзыва пользователем(используется ReviewDTO). Для идентификации пользователя необходимо передавать в headers jwt-token (в хедере Authorization)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Отправка прошла успешно"),
+            @ApiResponse(responseCode = "403", description = "Возможные варианты, когда выбрасывается ошибка 403: " +
+                    "\n 1. Проблема с jwt-token (просрочен, не валиден, отсутствует)"),
+            @ApiResponse(responseCode = "404", description = "Возможные варианты, когда выбрасывается ошибка 404: " +
+                    "\n 1. Пользователя, номер, которого вы передали в jwt токене не существует."),
+            @ApiResponse(responseCode = "400" , description = "Возможные варианты, когда выбрасывается ошибка 404: " +
+                    "1. Неправильно передан рейтинг или поле с текстом отзыва."),
+            @ApiResponse(responseCode = "500", description = "-------")
+    })
     public ResponseEntity<Void> leaveReview(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid ReviewDTO reviewDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
@@ -162,6 +176,55 @@ public class ClientController {
         reviewService.save(review);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    //TODO ДОКА
+    @GetMapping("/orderHistory")
+    @Operation(summary = "Возвращает последние 3 заказа пользователя(требует только jwt токен)")
+    @ApiResponses( value = {
+            @ApiResponse(responseCode = "200", description = "возвращает последние 3 заказа", content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
+                            summary = "Последние 3 заказа",
+                            value = """
+                                    [
+                                        {
+                                            "date": "2024-01-04T23:39:10.164847",
+                                            "orderId": 9,
+                                            "sum": 3000.0
+                                        },
+                                        {
+                                            "date": "2024-01-04T23:30:28.215975",
+                                            "orderId": 8,
+                                            "sum": 2547.0
+                                        },
+                                        {
+                                            "date": "2024-01-04T23:27:45.063839",
+                                            "orderId": 7,
+                                            "sum": 5274.0
+                                        }
+                                    ]"""
+                    ))
+            }),
+
+            @ApiResponse(responseCode = "404", description = """
+                    Возможные варианты, когда выбрасывается ошибка 404\s
+                     1. Пользователя, номер, которого вы передали в jwt токене не существует.
+                     """),
+
+            @ApiResponse(responseCode = "403", description = "Возможные варианты, когда выбрасывается ошибка 403: " +
+                    "\n 1. Проблема с jwt-token (просрочен, не валиден, отсутствует)"),
+    }
+    )
+    public ResponseEntity<List<OrderDTO>> getOrderHistory(@RequestHeader(HttpHeaders.AUTHORIZATION) String token){
+        Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
+        List<OrderDTO> lastInactiveBuckets = client.getBucketList().stream()
+                .filter(cart -> !cart.isActive())
+                .sorted(Comparator.comparing(Bucket::getCreatedTime).reversed())
+                .limit(3)
+                .map(bucket -> new OrderDTO(bucket.getCreatedTime(), bucket.getId(), bucket.getBucketSum())).toList();
+        return new ResponseEntity<>(lastInactiveBuckets, HttpStatus.OK);
+    }
+
+
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

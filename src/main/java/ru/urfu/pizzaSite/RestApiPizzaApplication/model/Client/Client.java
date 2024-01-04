@@ -1,9 +1,10 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.Bucket;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,13 +35,11 @@ public class Client {
     @Column(name = "login_attempts")
     private int login_attempts;
 
-
-
     @OneToOne(mappedBy = "client", cascade=CascadeType.ALL)
     private ClientInfo client_info;
 
-    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
-    private Bucket bucket;
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<Bucket> bucketList;
 
     public Client() {
     }
@@ -108,12 +107,11 @@ public class Client {
         this.login_attempts = login_attempts;
     }
 
-    public Bucket getBucket() {
-        return bucket;
+    public List<Bucket> getBucketList() {
+        return bucketList;
     }
 
-    public void setBucket(Bucket bucket) {
-        this.bucket = bucket;
+    public void setBucketList(List<Bucket> bucket) {
+        this.bucketList = bucket;
     }
-
 }

@@ -4,8 +4,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ProductType;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.Product;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.ProductType;
 
 
 import java.util.List;

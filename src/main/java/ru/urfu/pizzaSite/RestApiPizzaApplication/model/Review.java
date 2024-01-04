@@ -2,6 +2,7 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.ClientInfo;
 
 @Entity
 @Table(name = "review")

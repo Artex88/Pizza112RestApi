@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.api.SMSApi;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.AuthenticationDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.AuthorizationAttemptsExhaustedException;
@@ -73,7 +73,7 @@ public class ClientService {
     @Transactional
     public void validateLoginRequest(Client client,String password){
         LocalDateTime currenTime = LocalDateTime.now();
-        if (client.getLogin_attempts() >= 4 && !Objects.equals(client.getPhoneNumber(), "79999999999")){
+        if (client.getLogin_attempts() >= 4 && !Objects.equals(client.getPhoneNumber(), "79999999999") && !Objects.equals(client.getPhoneNumber(), "78888888888")){
             client.setLastLoginTime(currenTime);
             client.setLogin_attempts(0);
             client.setPassword(password);
@@ -108,12 +108,12 @@ public class ClientService {
     @Transactional
     public void sendRegistrationMessage(String phoneNumber, String rawPassword){
         Optional<Client> optionalClient = clientRepository.findByPhoneNumber(phoneNumber);
-        if (optionalClient.isPresent() && !Objects.equals(optionalClient.get().getPhoneNumber(), "79999999999")){
+        if (optionalClient.isPresent() && !Objects.equals(optionalClient.get().getPhoneNumber(), "79999999999") && !Objects.equals(optionalClient.get().getPhoneNumber(), "78888888888")){
             this.validateRegisterRequest(optionalClient.get());
             this.updatePasswordAndResetAttempts(optionalClient.get(), passwordEncoder.encode(rawPassword));
             smsApi.sendSMSWithPassword(phoneNumber, rawPassword);
         }
-        else if (Objects.equals(phoneNumber, "79999999999")){
+        else if (Objects.equals(phoneNumber, "79999999999") || Objects.equals(phoneNumber, "78888888888")){
             if (optionalClient.isPresent())
                 optionalClient.get().setPassword(passwordEncoder.encode("111111"));
             else

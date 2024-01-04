@@ -18,10 +18,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ClientReviewDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ReviewDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.*;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.ClientResponse;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.ClientResponse;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.Product;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Review;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ReviewService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Product.ProductService;
@@ -111,7 +110,7 @@ public class ShowController {
     }
 
     @PostMapping("/product")
-    @Operation(summary = "Получение всех вариантов конкретного товара(используется ShowProductDTO)")
+    @Operation(summary = "Получение всех вариантов конкретного товара(используется ShowByIdDTO)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример на получения всех вариантов мясной пиццы", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "пример запроса",
@@ -171,10 +170,10 @@ public class ShowController {
                     "\n 1. Продукта с id, который передаеться, не существует.")
     }
     )
-    public ResponseEntity<Object> showProduct(@RequestBody @Valid ShowProductDTO showProductDTO, BindingResult bindingResult){
+    public ResponseEntity<Object> showProduct(@RequestBody @Valid ShowByIdDTO showByIdDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
-        Product product = productService.findById(showProductDTO.getId());
+        Product product = productService.findById(showByIdDTO.getId());
         if (Objects.equals(product.getProductType().getName(), ProductTypes.Pizza.name())){
             Object pizzaVariantDTOList = product.getProductVariants()
                     .stream()
@@ -190,8 +189,23 @@ public class ShowController {
         return null;
     }
 
-    // TODO написать доку
+
     @GetMapping("/reviews")
+    @Operation(summary = "Получение 5-ти случаных отзывов из базы данных(используется ClientReviewDTO)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Запрос прошёл успешно", content = {
+                    @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
+                            summary = "Пример ответа, где передаются все поля клиента",
+                            value = """
+                                        "rating": "3.5",
+                                        "text": "на 3.5 норм",
+                                        "authorName": "Петр",
+                                        "authorAvatar": "default.webp",
+                                        }
+                                        ....... еще 4 подобных отзыва"""
+                    ))
+            })
+    })
     public ResponseEntity<List<ClientReviewDTO>> getReviews(){
         List<ClientReviewDTO> reviewDTOList =  reviewService.getSomeReviews().stream().map(this::convertToReviewDTO).toList();
         return new ResponseEntity<>(reviewDTOList, HttpStatus.OK);

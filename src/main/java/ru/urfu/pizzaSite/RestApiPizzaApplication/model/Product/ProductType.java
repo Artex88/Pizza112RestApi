@@ -1,4 +1,4 @@
-package ru.urfu.pizzaSite.RestApiPizzaApplication.model;
+package ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;

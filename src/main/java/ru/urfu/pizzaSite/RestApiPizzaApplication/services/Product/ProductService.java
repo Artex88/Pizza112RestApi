@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowDTO;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.Product;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ProductRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
