@@ -1,6 +1,9 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.model.Pizza;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.IngredientTypes;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,12 +16,22 @@ public class Ingredient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(name = "name")
+    @NotNull
+    @NotEmpty
     private String name;
     @Column(name = "weight")
     private Double weight;
 
     @Column(name = "price")
     private Double price;
+
+    @Column(name = "type")
+    @NotNull
+    @NotEmpty
+    private IngredientTypes type;
+
+    @Column(name = "image")
+    private String image;
 
     @OneToMany(mappedBy = "ingredient", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PizzaIngredient> pizzaIngredientSet = new HashSet<>();
@@ -64,5 +77,21 @@ public class Ingredient {
 
     public void setPizzaIngredientSet(Set<PizzaIngredient> pizzaIngredientSet) {
         this.pizzaIngredientSet = pizzaIngredientSet;
+    }
+
+    public IngredientTypes getType() {
+        return type;
+    }
+
+    public void setType(IngredientTypes type) {
+        this.type = type;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

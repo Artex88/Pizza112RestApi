@@ -23,14 +23,6 @@ public class CustomPizza {
     @Column(name = "status")
     private String status;
 
-    @ManyToOne()
-    @JoinColumn(name = "dough_id", referencedColumnName = "id")
-    private Dough dough;
-
-    @ManyToOne()
-    @JoinColumn(name = "size_id", referencedColumnName = "id")
-    private Size size;
-
     @OneToMany(mappedBy = "customPizza", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PizzaIngredient> pizzaIngredientSet = new HashSet<>();
 
@@ -67,22 +59,6 @@ public class CustomPizza {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public Dough getDough() {
-        return dough;
-    }
-
-    public void setDough(Dough dough) {
-        this.dough = dough;
-    }
-
-    public Size getSize() {
-        return size;
-    }
-
-    public void setSize(Size size) {
-        this.size = size;
     }
 
     public Set<PizzaIngredient> getPizzaIngredientSet() {
