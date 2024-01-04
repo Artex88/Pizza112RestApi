@@ -110,7 +110,7 @@ public class ShowController {
     }
 
     @PostMapping("/product")
-    @Operation(summary = "Получение всех вариантов конкретного товара(используется ShowProductDTO)")
+    @Operation(summary = "Получение всех вариантов конкретного товара(используется ShowByIdDTO)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример на получения всех вариантов мясной пиццы", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
                     summary = "пример запроса",
@@ -170,10 +170,10 @@ public class ShowController {
                     "\n 1. Продукта с id, который передаеться, не существует.")
     }
     )
-    public ResponseEntity<Object> showProduct(@RequestBody @Valid ShowProductDTO showProductDTO, BindingResult bindingResult){
+    public ResponseEntity<Object> showProduct(@RequestBody @Valid ShowByIdDTO showByIdDTO, BindingResult bindingResult){
         if (bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
-        Product product = productService.findById(showProductDTO.getId());
+        Product product = productService.findById(showByIdDTO.getId());
         if (Objects.equals(product.getProductType().getName(), ProductTypes.Pizza.name())){
             Object pizzaVariantDTOList = product.getProductVariants()
                     .stream()

@@ -22,21 +22,25 @@ public class Bucket {
     @Column(name = "created_at")
     private LocalDateTime createdTime;
 
-    @Column
-    private String status;
+    @Column(name = "status")
+    private boolean status;
+    transient private double bucketSum;
 
     @OneToMany(mappedBy = "bucket", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private Set<BucketItem> bucketItemSet;
 
     public Bucket(){
-
     }
 
-    public Bucket(Client client, LocalDateTime createdTime, HashSet<BucketItem> bucketItemSet, String status) {
+    public Bucket(Client client, LocalDateTime createdTime, HashSet<BucketItem> bucketItemSet, boolean status) {
         this.client = client;
         this.createdTime = createdTime;
         this.bucketItemSet = bucketItemSet;
         this.status = status;
+    }
+
+    public double getBucketSum() {
+        return bucketItemSet.stream().mapToDouble(BucketItem::getItemPrice).sum();
     }
 
     public int getId() {
@@ -71,11 +75,11 @@ public class Bucket {
         this.bucketItemSet = bucketItemSet;
     }
 
-    public String getStatus() {
+    public boolean isActive() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(boolean status) {
         this.status = status;
     }
 }

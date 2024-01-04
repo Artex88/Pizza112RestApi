@@ -19,7 +19,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ClientInfoDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.OrderDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.ReviewDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.Bucket;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Review;
@@ -31,7 +33,9 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationExcep
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -172,6 +176,20 @@ public class ClientController {
         reviewService.save(review);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    //TODO ДОКА
+    @GetMapping("/orderHistory")
+    public ResponseEntity<List<OrderDTO>> getOrderHistory(@RequestHeader(HttpHeaders.AUTHORIZATION) String token){
+        Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
+        List<OrderDTO> lastInactiveBuckets = client.getBucketList().stream()
+                .filter(cart -> !cart.isActive())
+                .sorted(Comparator.comparing(Bucket::getCreatedTime).reversed())
+                .limit(3)
+                .map(bucket -> new OrderDTO(bucket.getCreatedTime(), bucket.getId(), bucket.getBucketSum())).toList();
+        return new ResponseEntity<>(lastInactiveBuckets, HttpStatus.OK);
+    }
+
+
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

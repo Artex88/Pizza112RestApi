@@ -2,11 +2,11 @@ package ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs;
 
 import jakarta.validation.constraints.NotNull;
 
-public class ShowProductDTO {
-    @NotNull(message = "id продукта не может быть равно null")
+public class ShowByIdDTO {
+    @NotNull(message = "id не может быть равно null")
     private Integer id;
 
-    public ShowProductDTO(){
+    public ShowByIdDTO(){
 
     }
 
