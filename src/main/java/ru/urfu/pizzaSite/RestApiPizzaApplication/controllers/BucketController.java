@@ -226,7 +226,7 @@ public class BucketController {
         return getShowItemDTOSet(bucket);
     }
 
-    @GetMapping("/showOrder")
+    @PostMapping("/showOrder")
     @Operation(summary = "Показывает конкретный заказ из истории заказов, передавая id нужной корзины(нужна авторизация)(используется ShowByIdDTO)")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Пример запроса на показ заказа с id 0", content = {
             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = @ExampleObject(
