@@ -312,6 +312,8 @@ public class BucketController {
             throw new NotFoundException("Client doesn't have active bucket");
 
         Bucket bucket = client.getBucketList().stream().filter(Bucket::isActive).findFirst().get();
+        if (bucket.getBucketItemSet().isEmpty())
+            throw new CountException("Order can't be empty");
         bucket.setStatus(false);
         bucketService.save(bucket);
         return new ResponseEntity<>(HttpStatus.OK);

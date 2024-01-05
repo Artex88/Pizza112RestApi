@@ -8,6 +8,7 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.BucketRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Optional;
 
 @Service
@@ -24,7 +25,7 @@ public class BucketService {
     }
 
     public void createBucket(Client client) {
-        Bucket bucket = new Bucket(client, LocalDateTime.now(), null,true);
+        Bucket bucket = new Bucket(client, LocalDateTime.now(), new HashSet<>(),true);
         this.save(bucket);
         client.getBucketList().add(bucket);
     }
