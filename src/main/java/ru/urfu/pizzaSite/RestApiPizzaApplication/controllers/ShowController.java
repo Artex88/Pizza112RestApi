@@ -186,6 +186,12 @@ public class ShowController {
                     .map(baseProductVariant -> modelMapper.map(baseProductVariant, BaseProductDTO.class)).peek(baseProductVariant -> baseProductVariant.setImage(product.getImageName())).toList();
             return new ResponseEntity<>(baseProductDTO,HttpStatus.OK);
         }
+        else if (Objects.equals(product.getProductType().getName(), ProductTypes.Drink.name())){
+            Object drinkProductDTO =  product.getProductVariants()
+                    .stream()
+                    .map(baseProductVariant -> modelMapper.map(baseProductVariant, DrinkDTO.class)).peek(baseProductVariant -> baseProductVariant.setImage(product.getImageName())).toList();
+            return new ResponseEntity<>(drinkProductDTO,HttpStatus.OK);
+        }
         return null;
     }
 
