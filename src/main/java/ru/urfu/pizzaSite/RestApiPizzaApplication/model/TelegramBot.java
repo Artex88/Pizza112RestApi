@@ -84,13 +84,12 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
-
     }
 
     public static SendMessage hermitageInlineKeyboardAb (Long chat_id) {
         SendMessage message = new SendMessage();
         message.setChatId(chat_id);
-        message.setText("");
+        message.setText("Меню \uD83D\uDC47");
 
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setResizeKeyboard(true);
@@ -134,12 +133,12 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void unknownCommand(Long chatId) {
-        var text = "Не удалось распознать команду!\n Список корректных команд доступен ниже";
+        var text = "Не удалось распознать команду!\nСписок корректных команд доступен ниже";
         sendMessage(chatId, text);
     }
     private void unknownID(Long chatId) {
         var text = "Идентификатор пользователя отсутствует, либо неправильный, либо вы уже привязали свой аккаунт.\n" +
-                "Для проверки введите команду /status.\n Для полного списка команд /help";
+                "Для проверки введите команду /status.\nДля полного списка команд /help.\n Для информации о боте /info.";
 
         sendMessage(chatId, text);
     }
@@ -150,12 +149,12 @@ public class TelegramBot extends TelegramLongPollingBot {
             ClientInfo clientInfo = clientInfoOptional.get();
             boolean notifications = clientInfo.isNotificationsOn();
             if (notifications)
-                sendMessage(chatId, "Аккаунт подключен, уведомления подключены.\n Если хотите отключить уведомления, напишите команду /disconnect");
+                sendMessage(chatId, "Аккаунт подключен, уведомления подключены.\nЕсли хотите отключить уведомления, напишите команду /disconnect");
             else
-                sendMessage(chatId, "Аккаунт подключен, уведомления отключены.\n Если хотите подключить уведомления, напишите команду /connect");
+                sendMessage(chatId, "Аккаунт подключен, уведомления отключены.\nЕсли хотите подключить уведомления, напишите команду /connect");
         }
         else
-            sendMessage(chatId, "Аккаунт не привязан.\n Если вы хотите привязать аккаунт, вам необходимо зайти на сайт пиццерии Pizza112 и в личном кабинете пользователь нажать на кнопку поключения tg бота");
+            sendMessage(chatId, "Аккаунт не привязан.\nЕсли вы хотите привязать аккаунт, вам необходимо зайти на сайт пиццерии Pizza112 и в личном кабинете пользователь нажать на кнопку поключения tg бота");
     }
 
     private void setNotificationStatus(Long chatId, boolean notificationsOn, String successMessage){
