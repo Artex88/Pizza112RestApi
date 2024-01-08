@@ -111,6 +111,11 @@ public class ClientInfoService {
         return json;
     }
 
+    @Transactional
+    public Optional<ClientInfo> getByTgToken(String token){
+        return clientInfoRepository.findByTgToken(token);
+    }
+
     @Transactional(readOnly = true)
     public boolean isClientExist(String phoneNumber){
         return clientInfoRepository.findByPhoneNumber(phoneNumber).isPresent();

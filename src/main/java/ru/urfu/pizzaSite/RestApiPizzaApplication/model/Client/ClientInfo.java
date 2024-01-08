@@ -44,6 +44,12 @@ public class ClientInfo {
     @Column(name = "tg_token")
     private String tgToken;
 
+    @Column(name = "chat_id")
+    private Long chatId;
+
+    @Column(name = "is_notifications_on")
+    private boolean isNotificationsOn;
+
     @OneToOne
     @JoinColumn(name = "client_id", referencedColumnName = "id")
     private Client client;
@@ -60,6 +66,22 @@ public class ClientInfo {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Long getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(Long chatId) {
+        this.chatId = chatId;
+    }
+
+    public boolean isNotificationsOn() {
+        return isNotificationsOn;
+    }
+
+    public void setNotificationsOn(boolean notificationsOn) {
+        isNotificationsOn = notificationsOn;
     }
 
     public String getPhoneNumber() {
