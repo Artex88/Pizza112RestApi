@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.api.SMSApi;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ClientDTOs.AuthenticationDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.Bucket;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.BucketItem;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.Client;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.model.TelegramBot;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.security.JWTUtil;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.AuthorizationAttemptsExhaustedException;
@@ -17,6 +20,7 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundExcepti
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.TooManyRequestException;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,17 +35,20 @@ public class ClientService {
 
     private final SMSApi smsApi;
 
+    private final TelegramBot telegramBot;
+
     private final RegistrationService registrationService;
 
     private final JWTUtil jwtUtil;
 
 
     @Autowired
-    public ClientService(ClientRepository clientRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, SMSApi smsApi, RegistrationService registrationService, JWTUtil jwtUtil) {
+    public ClientService(ClientRepository clientRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, SMSApi smsApi, TelegramBot telegramBot, RegistrationService registrationService, JWTUtil jwtUtil) {
         this.clientRepository = clientRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.smsApi = smsApi;
+        this.telegramBot = telegramBot;
         this.registrationService = registrationService;
         this.jwtUtil = jwtUtil;
     }
@@ -128,5 +135,48 @@ public class ClientService {
     public String getPhoneNumberFromToken(String token){
         String jwt = token.substring(7);
         return jwtUtil.validateTokenAndRetrieveClaim(jwt);
+    }
+
+    public void sendNotify(Bucket bucket, Long chatId){
+        StringBuilder stringBuilder = new StringBuilder();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        stringBuilder.append("Вами был сделан заказ\n");
+        stringBuilder.append("Время: ").append(bucket.getCreatedTime().format(formatter)).append(" по ЕКБ").append("\n\n");
+        stringBuilder.append("Состав вашего заказа:\n");
+        for (BucketItem bucketItem: bucket.getBucketItemSet()){
+            stringBuilder.append(parseProductVariant(bucketItem.getProductVariant().getProductVariantName(),bucketItem.getProduct().getProductName())).append(", Количество: ").append(bucketItem.getQuantity()).
+                    append(", Цена: ").append(bucketItem.getItemPrice()).append("\n");
+        }
+        stringBuilder.append("\n").append("Итоговая цена всего заказа: ").append(bucket.getBucketSum());
+        telegramBot.sendNotify(chatId, stringBuilder.toString());
+    }
+
+    private String parseProductVariant(String productVariant, String productName){
+        String fullName = null;
+        switch (productVariant){
+            case "SP" -> fullName = "Маленькая " + productName + " пицца";
+            case "STP" -> fullName = "Маленькая " + productName + " пицца с тонким тестом";
+            case "MP" -> fullName = "Средняя " + productName + "пицца";
+            case "MTP" -> fullName = "Средняя " + productName + " пицца с тонким тестом";
+            case "LP" -> fullName = "Большая " + productName + " пицца";
+            case "LTP" -> fullName = "Большая " + productName + " пицца с тонким тестом";
+            case "B" -> fullName = productName;
+            case "SMV" -> fullName = "Маленький ванильный " + productName;
+            case "SMC" -> fullName = "Маленький шоколадный " + productName;
+            case "SMS" -> fullName = "Маленький клубничный " + productName;
+            case "MMV" -> fullName = "Средний ванильный " + productName;
+            case "MMC" -> fullName = "Средний шоколадный " + productName;
+            case "MMS" -> fullName = "Средний клубничный " + productName;
+            case "SJA" -> fullName = "Маленький яблочный " + productName;
+            case "SJO" -> fullName = "Маленький апельсиновый " + productName;
+            case "SJC" -> fullName = "Маленький вишневый " + productName;
+            case "MJA" -> fullName = "Средний яблочный " + productName;
+            case "MJO" -> fullName = "Средний апельсиновый " + productName;
+            case "MJC" -> fullName = "Средний вишневый " + productName;
+            case "SD" -> fullName = "Маленький " + productName;
+            case "MD" -> fullName = "Средний " + productName;
+            case "LD" -> fullName = "Большой " + productName;
+        }
+        return fullName;
     }
 }

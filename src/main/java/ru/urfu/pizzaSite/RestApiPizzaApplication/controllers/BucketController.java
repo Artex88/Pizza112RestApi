@@ -26,6 +26,7 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.Product;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Product.ProductVariant;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Bucket.BucketItemService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Bucket.BucketService;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientInfoService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Product.ProductService;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Product.ProductVariantService;
@@ -50,13 +51,16 @@ public class BucketController {
 
     private final ClientService clientService;
 
+    private final ClientInfoService clientInfoService;
+
     @Autowired
-    public BucketController(BucketService bucketService, ProductVariantService productVariantService, BucketItemService bucketItemService, ProductService productService, ClientService clientService) {
+    public BucketController(BucketService bucketService, ProductVariantService productVariantService, BucketItemService bucketItemService, ProductService productService, ClientService clientService, ClientInfoService clientInfoService) {
         this.bucketService = bucketService;
         this.productVariantService = productVariantService;
         this.bucketItemService = bucketItemService;
         this.productService = productService;
         this.clientService = clientService;
+        this.clientInfoService = clientInfoService;
     }
 
     @PostMapping("/add")
@@ -315,6 +319,8 @@ public class BucketController {
         if (bucket.getBucketItemSet().isEmpty())
             throw new CountException("Order can't be empty");
         bucket.setStatus(false);
+        if (client.getClient_info().isNotificationsOn())
+            clientService.sendNotify(bucket, client.getClient_info().getChatId());
         bucketService.save(bucket);
         return new ResponseEntity<>(HttpStatus.OK);
     }

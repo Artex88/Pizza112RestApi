@@ -6,10 +6,16 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientInfoService;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -20,12 +26,15 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     private final ClientInfoService clientInfoService;
 
-    private static final String START = "/start";
     private static final String HELP = "/help";
 
     private static final String CONNECT = "/connect";
 
+    private static final String STATUS = "/status";
+
     private static final String DISCONNECT = "/disconnect";
+
+    private static final String INFO = "/info";
 
     @Autowired
     public TelegramBot(@Value("${telegram_bot_token}") String token, ClientInfoService clientInfoService){
@@ -37,6 +46,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     public String getBotUsername() {
         return botName;
     }
+
     @Override
     public void onUpdateReceived(Update update) {
         if (!update.hasMessage() || !update.getMessage().hasText()){
@@ -52,8 +62,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 if (clientInfoOptional.isPresent()) {
                     ClientInfo clientInfo = clientInfoOptional.get();
                     clientInfo.setChatId(chatId);
-                    String userName = update.getMessage().getChat().getUserName();
-                    startCommand(chatId, userName);
+                    clientInfoService.save(clientInfo);
                 } else
                     unknownCommand(chatId);
             } else
@@ -62,19 +71,55 @@ public class TelegramBot extends TelegramLongPollingBot {
             setNotificationStatus(chatId, true, "Уведомления подключены");
         } else if (message.equals(DISCONNECT)) {
             setNotificationStatus(chatId, false, "Уведомления отключены");
-        } else if (message.equals(HELP)) {
-            helpCommand(chatId);
-        } else {
-            unknownCommand(chatId);
+        }   else if (message.equals(HELP))
+                helpCommand(chatId);
+            else if (message.equals(STATUS))
+                statusCommand(chatId);
+            else if (message.equals(INFO))
+              infoCommand(chatId);
+            else
+                unknownCommand(chatId);
+        try {
+            execute(hermitageInlineKeyboardAb(chatId));
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
         }
+
     }
 
-    private void startCommand(Long chatId, String userName) {
+    public static SendMessage hermitageInlineKeyboardAb (Long chat_id) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chat_id);
+        message.setText("");
+
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setResizeKeyboard(true);
+
+        List<KeyboardRow> rowsInline = new ArrayList<>();
+
+        KeyboardRow row = new KeyboardRow();
+        row.addAll(Arrays.asList(
+                new KeyboardButton("/status"),
+                new KeyboardButton("/connect"),
+                new KeyboardButton("/disconnect"),
+                new KeyboardButton("/info"),
+                new KeyboardButton("/help")
+        ));
+
+        rowsInline.add(row);
+
+        replyKeyboardMarkup.setKeyboard(rowsInline);
+        message.setReplyMarkup(replyKeyboardMarkup);
+
+        return message;
+    }
+
+    private void infoCommand(Long chatId) {
         String text= """
-                Добро пожаловать в бот пиццерии Pizza112, $s
+                Добро пожаловать в бот пиццерии Pizza112
                 
                 Здесь вы можете подключить уведомления о заказах и т.п. в нашей пиццерии.
-                Чтобы подключить уведомления, вам необходимо перейти СТРОГО по ссылке в нашем личном кабинет.
+                Чтобы подключить уведомления, вам необходимо ПЕРВЫЙ РАЗ перейти СТРОГО по ссылке в нашем личном кабинет, для связи аккаунта пиццерии с ТГ.
                 Иначе функциональность нашего бота будет вам недоступна.
                 
                 Для этого воспользуйтесь командами:
@@ -85,25 +130,46 @@ public class TelegramBot extends TelegramLongPollingBot {
                 Дополнительные команды:
                 /help - получение справки
                 """;
-        var formattedText = String.format(text, userName);
-        sendMessage(chatId, formattedText);
+        sendMessage(chatId, text);
     }
 
     private void unknownCommand(Long chatId) {
-        var text = "Не удалось распознать команду!";
+        var text = "Не удалось распознать команду!\n Список корректных команд доступен ниже";
         sendMessage(chatId, text);
     }
     private void unknownID(Long chatId) {
-        var text = "Идентификатор пользователя отсутствует либо неправильный.";
+        var text = "Идентификатор пользователя отсутствует, либо неправильный, либо вы уже привязали свой аккаунт.\n" +
+                "Для проверки введите команду /status.\n Для полного списка команд /help";
+
         sendMessage(chatId, text);
+    }
+
+    private void statusCommand(Long chatId){
+        Optional<ClientInfo> clientInfoOptional = clientInfoService.findByChatId(chatId);
+        if (clientInfoOptional.isPresent()) {
+            ClientInfo clientInfo = clientInfoOptional.get();
+            boolean notifications = clientInfo.isNotificationsOn();
+            if (notifications)
+                sendMessage(chatId, "Аккаунт подключен, уведомления подключены.\n Если хотите отключить уведомления, напишите команду /disconnect");
+            else
+                sendMessage(chatId, "Аккаунт подключен, уведомления отключены.\n Если хотите подключить уведомления, напишите команду /connect");
+        }
+        else
+            sendMessage(chatId, "Аккаунт не привязан.\n Если вы хотите привязать аккаунт, вам необходимо зайти на сайт пиццерии Pizza112 и в личном кабинете пользователь нажать на кнопку поключения tg бота");
     }
 
     private void setNotificationStatus(Long chatId, boolean notificationsOn, String successMessage){
         Optional<ClientInfo> clientInfoOptional = clientInfoService.findByChatId(chatId);
         if (clientInfoOptional.isPresent()){
             ClientInfo clientInfo = clientInfoOptional.get();
-            clientInfo.setNotificationsOn(notificationsOn);
-            sendMessage(chatId, successMessage);
+            boolean notifications = clientInfo.isNotificationsOn();
+            if (notifications == notificationsOn)
+                sendMessage(chatId, "Вы уже подключали/отключали уведомления. Проверьте текущее состояние командой /status");
+            else {
+                clientInfo.setNotificationsOn(notificationsOn);
+                clientInfoService.save(clientInfo);
+                sendMessage(chatId, successMessage);
+            }
         } else {
             unknownID(chatId);
         }
@@ -112,10 +178,16 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void helpCommand(Long chatId) {
         var text = """
                 Справочная информация по боту
-                              
-                /connect - подключить уведомления
-                /disconnect - отключить уведомления
+                          
+                /connect - подключить уведомления.
+                /disconnect - отключить уведомления.
+                /status - статус аккаунта.
+                /info - информация о боте.
                 """;
+        sendMessage(chatId, text);
+    }
+
+    public void sendNotify(Long chatId, String text){
         sendMessage(chatId, text);
     }
 
@@ -128,5 +200,4 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         }
     }
-
 }
