@@ -10,3 +10,5 @@ jwt_secret=
 sms_login=
 sms_password=
 config_default_prefix =
+telegram_bot_name =
+telegram_bot_token =

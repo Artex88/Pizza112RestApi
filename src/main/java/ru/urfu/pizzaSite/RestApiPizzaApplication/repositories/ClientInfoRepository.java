@@ -9,4 +9,8 @@ import java.util.Optional;
 public interface ClientInfoRepository extends JpaRepository<ClientInfo, Integer> {
     Optional<ClientInfo> findByClientId (int clientId);
     Optional<ClientInfo> findByPhoneNumber(String phoneNumber);
+
+    Optional<ClientInfo> findByTgToken (String token);
+
+    Optional<ClientInfo> findByChatId (Long id);
 }

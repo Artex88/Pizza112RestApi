@@ -133,6 +133,7 @@ public class ClientController {
                                         "dateOfBirth": "1971-02-14",
                                         "photoName": "default.webp",
                                         "email": null  \s
+                                        "tgToken": "fe32542$@...
                                         }"""
                     ))
             }),

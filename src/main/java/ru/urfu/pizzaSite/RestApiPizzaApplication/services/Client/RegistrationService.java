@@ -7,16 +7,20 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.Client;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientRepository;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.repositories.ClientInfoRepository;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.security.TelegramTokenGenerator;
 
 @Service
 public class RegistrationService {
     private final ClientInfoRepository clientInfoRepository;
 
+    private final TelegramTokenGenerator telegramTokenGenerator;
+
     private final ClientRepository clientRepository;
 
     @Autowired
-    public RegistrationService(ClientInfoRepository clientInfoRepository, ClientRepository clientRepository) {
+    public RegistrationService(ClientInfoRepository clientInfoRepository, TelegramTokenGenerator telegramTokenGenerator, ClientRepository clientRepository) {
         this.clientInfoRepository = clientInfoRepository;
+        this.telegramTokenGenerator = telegramTokenGenerator;
         this.clientRepository = clientRepository;
     }
 
@@ -24,6 +28,7 @@ public class RegistrationService {
     public void register(ClientInfo clientInfo, Client client){
         clientInfo.setClient(client);
         clientInfo.setImageName("default.webp");
+        clientInfo.setTgToken(telegramTokenGenerator.generateNewToken());
         clientRepository.save(client);
         clientInfoRepository.save(clientInfo);
     }

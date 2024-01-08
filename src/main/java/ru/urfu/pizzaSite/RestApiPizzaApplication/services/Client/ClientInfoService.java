@@ -107,7 +107,18 @@ public class ClientInfoService {
         else
             json.put("dateOfBirth", clientInfo.getDateOfBirth().toString());
         json.put("email", clientInfo.getEmail());
+        json.put("tgToken", clientInfo.getTgToken());
         return json;
+    }
+
+    @Transactional
+    public Optional<ClientInfo> findByTgToken(String token){
+        return clientInfoRepository.findByTgToken(token);
+    }
+
+    @Transactional
+    public Optional<ClientInfo> findByChatId(Long id){
+        return clientInfoRepository.findByChatId(id);
     }
 
     @Transactional(readOnly = true)
