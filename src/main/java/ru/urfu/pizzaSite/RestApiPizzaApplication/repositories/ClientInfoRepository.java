@@ -11,4 +11,6 @@ public interface ClientInfoRepository extends JpaRepository<ClientInfo, Integer>
     Optional<ClientInfo> findByPhoneNumber(String phoneNumber);
 
     Optional<ClientInfo> findByTgToken (String token);
+
+    Optional<ClientInfo> findByChatId (Long id);
 }

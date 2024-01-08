@@ -17,9 +17,4 @@ public class TelegramBotConfiguration {
         api.registerBot(telegramBot);
         return api;
     }
-
-    @Bean
-    public OkHttp3ClientHttpRequestFactory okHttp3Client(){
-        return new OkHttp3ClientHttpRequestFactory();
-    }
 }

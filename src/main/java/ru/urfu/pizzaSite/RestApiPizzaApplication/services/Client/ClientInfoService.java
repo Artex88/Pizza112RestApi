@@ -112,8 +112,13 @@ public class ClientInfoService {
     }
 
     @Transactional
-    public Optional<ClientInfo> getByTgToken(String token){
+    public Optional<ClientInfo> findByTgToken(String token){
         return clientInfoRepository.findByTgToken(token);
+    }
+
+    @Transactional
+    public Optional<ClientInfo> findByChatId(Long id){
+        return clientInfoRepository.findByChatId(id);
     }
 
     @Transactional(readOnly = true)

@@ -10,7 +10,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.ClientInfo;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.services.Client.ClientInfoService;
 
-import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -45,26 +44,28 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         var message = update.getMessage().getText();
         var chatId = update.getMessage().getChatId();
-        switch (message){
-            case START -> {
-                String[] commandParts = message.split(" ");
-                if (commandParts.length > 1) {
-                    String uniqueIdentifier = commandParts[1];
-                    Optional<ClientInfo> clientInfoOptional = clientInfoService.getByTgToken(uniqueIdentifier);
-                    if (clientInfoOptional.isPresent()){
-                        ClientInfo clientInfo = clientInfoOptional.get();
-                        clientInfo.setChatId(chatId);
-                        String userName = update.getMessage().getChat().getUserName();
-                        startCommand(chatId, userName);
-                    }
-                    else
-                        unknownCommand(chatId);
-                }
-                else
-                    unknownID(chatId);
-
-            }
-            default -> unknownCommand(chatId);
+        if (message.startsWith("/start")) {
+            String[] commandParts = message.split(" ");
+            if (commandParts.length > 1) {
+                String uniqueIdentifier = commandParts[1];
+                Optional<ClientInfo> clientInfoOptional = clientInfoService.findByTgToken(uniqueIdentifier);
+                if (clientInfoOptional.isPresent()) {
+                    ClientInfo clientInfo = clientInfoOptional.get();
+                    clientInfo.setChatId(chatId);
+                    String userName = update.getMessage().getChat().getUserName();
+                    startCommand(chatId, userName);
+                } else
+                    unknownCommand(chatId);
+            } else
+                unknownID(chatId);
+        } else if (message.equals(CONNECT)) {
+            setNotificationStatus(chatId, true, "Уведомления подключены");
+        } else if (message.equals(DISCONNECT)) {
+            setNotificationStatus(chatId, false, "Уведомления отключены");
+        } else if (message.equals(HELP)) {
+            helpCommand(chatId);
+        } else {
+            unknownCommand(chatId);
         }
     }
 
@@ -94,6 +95,27 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
     private void unknownID(Long chatId) {
         var text = "Идентификатор пользователя отсутствует либо неправильный.";
+        sendMessage(chatId, text);
+    }
+
+    private void setNotificationStatus(Long chatId, boolean notificationsOn, String successMessage){
+        Optional<ClientInfo> clientInfoOptional = clientInfoService.findByChatId(chatId);
+        if (clientInfoOptional.isPresent()){
+            ClientInfo clientInfo = clientInfoOptional.get();
+            clientInfo.setNotificationsOn(notificationsOn);
+            sendMessage(chatId, successMessage);
+        } else {
+            unknownID(chatId);
+        }
+    }
+
+    private void helpCommand(Long chatId) {
+        var text = """
+                Справочная информация по боту
+                              
+                /connect - подключить уведомления
+                /disconnect - отключить уведомления
+                """;
         sendMessage(chatId, text);
     }
 
