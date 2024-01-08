@@ -7,6 +7,8 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.List;
+
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
 
@@ -37,11 +39,35 @@ public class TelegramBot extends TelegramLongPollingBot {
         var chatId = update.getMessage().getChatId();
         switch (message){
             case START -> {
-
+                String userName = update.getMessage().getChat().getUserName();
+                startCommand(chatId, userName);
             }
+            default -> unknownCommand(chatId);
         }
     }
 
+    private void startCommand(Long chatId, String userName) {
+        String text= """
+                Добро пожаловать в бот пиццерии Pizza112, $s
+                
+                Здесь вы можете подключить уведомления о заказах и т.п. в нашей пиццерии.
+                
+                Для этого воспользуйтесь командами:
+                
+                /connect - подключение уведомлений
+                /disconnect - отключение уведомлений
+                
+                Дополнительные команды:
+                /help - получение справки
+                """;
+        var formattedText = String.format(text, userName);
+        sendMessage(chatId, formattedText);
+    }
+
+    private void unknownCommand(Long chatId) {
+        var text = "Не удалось распознать команду!";
+        sendMessage(chatId, text);
+    }
 
     private void sendMessage(Long chatId, String text){
         var chatIdStr = String.valueOf(chatId);

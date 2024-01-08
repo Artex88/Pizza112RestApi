@@ -41,6 +41,9 @@ public class ClientInfo {
     @Email
     private String email;
 
+    @Column(name = "tg_token")
+    private String tgToken;
+
     @OneToOne
     @JoinColumn(name = "client_id", referencedColumnName = "id")
     private Client client;
@@ -121,5 +124,13 @@ public class ClientInfo {
 
     public void setReviewList(List<Review> reviewList) {
         this.reviewList = reviewList;
+    }
+
+    public String getTgToken() {
+        return tgToken;
+    }
+
+    public void setTgToken(String tgToken) {
+        this.tgToken = tgToken;
     }
 }

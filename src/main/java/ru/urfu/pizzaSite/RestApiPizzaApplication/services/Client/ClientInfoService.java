@@ -107,6 +107,7 @@ public class ClientInfoService {
         else
             json.put("dateOfBirth", clientInfo.getDateOfBirth().toString());
         json.put("email", clientInfo.getEmail());
+        json.put("tgToken", clientInfo.getTgToken());
         return json;
     }
 

@@ -1,11 +1,10 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.enums.ProductTypes;
-import ru.urfu.pizzaSite.RestApiPizzaApplication.util.interfaces.EnumValidator;
+
 @Schema(description = "Сущность, которую необходимо передавать, чтобы получить из БД какой-то тип продуктов в определенном количестве")
 public class ShowDTO {
     @NotNull(message = "Поле типа продукта не может быть null")
