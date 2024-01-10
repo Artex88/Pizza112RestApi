@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs.BucketItemAddDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs.BucketItemDeleteDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs.BucketShowItemDTO;
+import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.OrderConfirmDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.dto.ProductDTOs.ShowByIdDTO;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Bucket.Bucket;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.model.Client.Client;
@@ -34,6 +36,7 @@ import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.CountException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.NotFoundException;
 import ru.urfu.pizzaSite.RestApiPizzaApplication.util.exceptions.ValidationException;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -294,7 +297,7 @@ public class BucketController {
     }
 
     @PostMapping("/confirm")
-    @Operation(summary = "Эмитация того, что пользователь оплатил заказ. После обращения на этот endpoint текущая корзина становится неактивной и заносится в историю заказов(передавать ничего не нужно)")
+    @Operation(summary = "Эмитация того, что пользователь оплатил заказ. После обращения на этот endpoint текущая корзина становится неактивной и заносится в историю заказов(передавать OrderConfirmDTO)")
     @ApiResponses( value = {
             @ApiResponse(responseCode = "200", description = "Заказ 'оплачен' и корзина стала неактивной"),
             @ApiResponse(responseCode = "404", description = """
@@ -309,7 +312,7 @@ public class BucketController {
                     "\n 1. Ошибка валидации")
     }
     )
-    public ResponseEntity<Void> confirmOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String token){
+    public ResponseEntity<Void> confirmOrder(@RequestHeader(HttpHeaders.AUTHORIZATION) String token, @RequestBody @Valid OrderConfirmDTO orderConfirmDTO){
         Client client = clientService.findByPhoneNumber(clientService.getPhoneNumberFromToken(token));
 
         if (client.getBucketList().stream().filter(Bucket::isActive).findFirst().isEmpty())
@@ -318,7 +321,13 @@ public class BucketController {
         Bucket bucket = client.getBucketList().stream().filter(Bucket::isActive).findFirst().get();
         if (bucket.getBucketItemSet().isEmpty())
             throw new CountException("Order can't be empty");
+        // Todo допилить
+        if (orderConfirmDTO.getPayType() == null)
+            throw new BadRequestException("Pay type must me not null");
         bucket.setStatus(false);
+        bucket.setCreatedTime(LocalDateTime.now());
+        bucket.setAddress(orderConfirmDTO.getAddress());
+        bucket.setPayType(orderConfirmDTO.getPayType());
         if (client.getClient_info().isNotificationsOn())
             clientService.sendNotify(bucket, client.getClient_info().getChatId());
         bucketService.save(bucket);
@@ -375,6 +384,8 @@ public class BucketController {
         List<BucketShowItemDTO> showItemDTOSet = bucket.getBucketItemSet().stream()
                 .map(bucketItem -> new BucketShowItemDTO(
                         bucket.getId(),
+                        bucket.getAddress(),
+                        bucket.getPayType(),
                         bucketItem.getProduct().getProductName(),
                         bucketItem.getProductVariant().getProductVariantName(),
                         bucketItem.getQuantity(),

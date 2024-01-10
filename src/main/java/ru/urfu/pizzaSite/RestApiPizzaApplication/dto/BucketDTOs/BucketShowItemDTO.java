@@ -1,6 +1,8 @@
 package ru.urfu.pizzaSite.RestApiPizzaApplication.dto.BucketDTOs;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotEmpty;
 
 @Schema(description = "Сущность, в которой приходит 1 ячейка продукта для корзины")
 public class BucketShowItemDTO {
@@ -11,6 +13,14 @@ public class BucketShowItemDTO {
     private int productId;
     @Schema(description = "Название продукта")
     private String name;
+
+    @Column(name = "address")
+    @NotEmpty
+    private String address;
+
+    @Column(name = "pay_type")
+    @NotEmpty
+    private String payType;
     @Schema(description = "Варинт продукта, подробнее про варианты смотреть в ProductVariants enum")
     private String productVariant;
     @Schema(description = "количество единиц продукта в ячейке")
@@ -22,8 +32,10 @@ public class BucketShowItemDTO {
     @Schema(description = "идентификатор картинки продукта")
     private String image;
 
-    public BucketShowItemDTO(int id, String name, String productVariant, Integer quantity, Double itemPrice, Double productVariantPrice, String image, int productId) {
+    public BucketShowItemDTO(int id, String address, String payType, String name, String productVariant, Integer quantity, Double itemPrice, Double productVariantPrice, String image, int productId) {
         this.bucketId = id;
+        this.address = address;
+        this.payType = payType;
         this.productId = productId;
         this.name = name;
         this.productVariant = productVariant;
@@ -95,5 +107,21 @@ public class BucketShowItemDTO {
 
     public void setBucketId(int bucketId) {
         this.bucketId = bucketId;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPayType() {
+        return payType;
+    }
+
+    public void setPayType(String payType) {
+        this.payType = payType;
     }
 }

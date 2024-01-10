@@ -26,6 +26,12 @@ public class Bucket {
     private boolean status;
     transient private double bucketSum;
 
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "pay_type")
+    private String payType;
+
     @OneToMany(mappedBy = "bucket", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private Set<BucketItem> bucketItemSet;
 
@@ -81,5 +87,21 @@ public class Bucket {
 
     public void setStatus(boolean status) {
         this.status = status;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getPayType() {
+        return payType;
+    }
+
+    public void setPayType(String payType) {
+        this.payType = payType;
     }
 }

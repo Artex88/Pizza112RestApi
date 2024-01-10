@@ -141,7 +141,9 @@ public class ClientService {
         StringBuilder stringBuilder = new StringBuilder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         stringBuilder.append("Вами был сделан заказ\n");
-        stringBuilder.append("Время: ").append(bucket.getCreatedTime().format(formatter)).append(" по ЕКБ").append("\n\n");
+        stringBuilder.append("Время: ").append(LocalDateTime.now().format(formatter)).append(" по ЕКБ").append("\n");
+        stringBuilder.append("Адрес: ").append(bucket.getAddress()).append("\n");
+        stringBuilder.append("Тип оплаты: ").append(bucket.getPayType()).append("\n");
         stringBuilder.append("Состав вашего заказа:\n");
         for (BucketItem bucketItem: bucket.getBucketItemSet()){
             stringBuilder.append(parseProductVariant(bucketItem.getProductVariant().getProductVariantName(),bucketItem.getProduct().getProductName())).append(", Количество: ").append(bucketItem.getQuantity()).
@@ -156,7 +158,7 @@ public class ClientService {
         switch (productVariant){
             case "SP" -> fullName = "Маленькая " + productName + " пицца";
             case "STP" -> fullName = "Маленькая " + productName + " пицца с тонким тестом";
-            case "MP" -> fullName = "Средняя " + productName + "пицца";
+            case "MP" -> fullName = "Средняя " + productName + " пицца";
             case "MTP" -> fullName = "Средняя " + productName + " пицца с тонким тестом";
             case "LP" -> fullName = "Большая " + productName + " пицца";
             case "LTP" -> fullName = "Большая " + productName + " пицца с тонким тестом";
