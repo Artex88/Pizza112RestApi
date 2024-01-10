@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotEmpty;
 public class OrderConfirmDTO {
 
     @Column(name = "address")
-    @NotEmpty
     private String address;
 
     @Column(name = "pay_type")
