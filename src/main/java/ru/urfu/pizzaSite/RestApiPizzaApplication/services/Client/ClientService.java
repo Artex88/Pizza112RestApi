@@ -142,7 +142,7 @@ public class ClientService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         stringBuilder.append("Вами был сделан заказ\n");
         stringBuilder.append("Время: ").append(LocalDateTime.now().format(formatter)).append(" по ЕКБ").append("\n");
-        stringBuilder.append("Адрес: ").append(bucket.getAddress()).append("\n");
+        stringBuilder.append("Адрес: ").append(bucket.getAddress() == null ? "Самовывоз " : bucket.getAddress()).append("\n");
         stringBuilder.append("Тип оплаты: ").append(bucket.getPayType()).append("\n");
         stringBuilder.append("Состав вашего заказа:\n");
         for (BucketItem bucketItem: bucket.getBucketItemSet()){
